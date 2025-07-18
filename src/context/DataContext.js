@@ -8,6 +8,8 @@ const DataContext = createContext();
 export const DataProvider = ({ children }) => {
   // Array State
   const [events, setEvents] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [bookings, setBookings] = useState([]);
 
   // Boolean State
   const [loading, setLoading] = useState(false);
@@ -42,13 +44,49 @@ export const DataProvider = ({ children }) => {
         if (!res.data) return;
         setEvents(res.data);
       } catch (err) {
-        alert(err.message);
+        alert("Failed to fetch events. " + err.message);
       } finally {
         setLoading(false);
       }
     };
 
     fetchEvents();
+  }, []);
+
+  // Fetch Users
+  useEffect(() => {
+    const fetchingUsers = async () => {
+      setLoading(true);
+      try {
+        const res = await request.get("/users");
+        if (!res.data) return;
+        setUsers(res.data);
+      } catch (err) {
+        alert("Failed to fetch users. " + err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchingUsers();
+  }, []);
+
+  // Fetch Bookings
+  useEffect(() => {
+    const fetchingBookings = async () => {
+      setLoading(false);
+      try {
+        const res = await request.get("/bookings");
+        if (res.data) return;
+        setBookings(res.data);
+      } catch (err) {
+        alert("Failed to fetch Bookings. " + err.message);
+      } finally {
+        setLoading(true);
+      }
+    };
+
+    fetchingBookings();
   }, []);
 
   // Create Event
@@ -59,9 +97,9 @@ export const DataProvider = ({ children }) => {
       const newEvent = {
         title: createFormData.title,
         description: createFormData.description,
+        location: createFormData.location,
         date: createFormData.date,
         time: createFormData.time,
-        location: createFormData.location,
         capacity: createFormData.capacity,
         createdAt: format(new Date(), "yyyy-MM-dd hh:mm:ss a"),
         organizerId: null,
@@ -81,7 +119,7 @@ export const DataProvider = ({ children }) => {
       });
       navigate("/");
     } catch (err) {
-      alert(err.message);
+      alert("Event creation failed. " + err.message);
     }
   };
 
@@ -93,7 +131,7 @@ export const DataProvider = ({ children }) => {
       setEvents((prev) => prev.filter((i) => i.id !== id));
       navigate("/");
     } catch (err) {
-      alert(err.message);
+      alert("Failed to delete event. " + err.message);
     }
   };
 
@@ -105,8 +143,9 @@ export const DataProvider = ({ children }) => {
         description: editFormData.description,
         date: editFormData.date,
         time: editFormData.time,
+        capacity: Number(editFormData.capacity),
         location: editFormData.location,
-        capacity: editFormData.capacity,
+        updatedAt: format(new Date(), "yyyy-MM-dd hh:mm:ss a"),
       };
 
       const res = await request.patch(`/events/${id}`, updatedEvent);
@@ -114,7 +153,73 @@ export const DataProvider = ({ children }) => {
       setEvents(updatedEvents);
       navigate(`/event/${id}`);
     } catch (err) {
-      alert(err.message);
+      alert("Failed to update event. " + err.message);
+    }
+  };
+
+  //   For JSON-SERVER
+  const currentUser = {
+    id: "user001",
+    firstName: "Mohamed",
+    lastName: "Sharfras",
+    email: "sharfrasaqsan@gmail.com",
+    bookedEvents: [],
+  };
+
+  // Book Event
+  const handleBookEvent = async (id) => {
+    // check if user already booked the event
+    const alreadyBooked = bookings.find(
+      (i) =>
+        i.userId === currentUser.id &&
+        i.eventId === id &&
+        events.map((i) => i.bookedUsers === currentUser.id) &&
+        users.map((i) => i.bookedEvents === id)
+    );
+
+    if (alreadyBooked) {
+      alert("You already booked this event!");
+      return;
+    }
+
+    // check if event has booked users or not to update the event
+    const eventToUpdate = events.find((i) => i.id === id);
+    const updatedBookedUsers = eventToUpdate.bookedUsers
+      ? [...eventToUpdate.bookedUsers, currentUser.id]
+      : [...eventToUpdate.bookedUsers];
+
+    try {
+      const newBooking = {
+        userId: currentUser.id,
+        eventId: id,
+        bookedAt: format(new Date(), "yyyy-MM-dd hh:mm:ss a"),
+      };
+
+      const res = await request.post("/bookings", newBooking);
+      const newBBookings = [...bookings, res.data];
+      setBookings(newBBookings);
+
+      // update event booked users
+      const eventRes = await request.patch(`/events/${id}`, {
+        bookedUsers: updatedBookedUsers,
+      });
+      const updatedEvents = events.map((i) =>
+        i.id === id ? eventRes.data : i
+      );
+      setEvents(updatedEvents);
+
+      // update user booked events
+      const userRes = await request.patch(`/users/${currentUser.id}`, {
+        bookedEvents: [...currentUser.bookedEvents, id],
+      });
+      const updatedUsers = users.map((i) =>
+        i.id === currentUser.id ? userRes.data : i
+      );
+      setUsers(updatedUsers);
+
+      navigate("/my-bookings");
+    } catch (err) {
+      alert("Event booking failed. " + err.message);
     }
   };
 
@@ -123,15 +228,17 @@ export const DataProvider = ({ children }) => {
       value={{
         events,
         setEvents,
+        bookings,
         loading,
         setLoading,
-        handleCreateEvent,
-        handleDeleteEvent,
-        handleUpdateEvent,
         createFormData,
         setCreateFormData,
         editFormData,
         setEditFormData,
+        handleCreateEvent,
+        handleDeleteEvent,
+        handleUpdateEvent,
+        handleBookEvent,
       }}
     >
       {children}
