@@ -1,0 +1,49 @@
+{
+  "events": [
+    {
+      "title": "NYC Web Dev Summit 2025",
+      "description": "Join top developers and tech leaders for a full-day conference focused on modern web technologies.",
+      "date": "2025-08-12",
+      "time": "09:00",
+      "location": "New York City, NY",
+      "capacity": "100",
+      "id": "1"
+    },
+    {
+      "id": "2",
+      "title": "Creative Watercolor Workshop",
+      "description": "Learn watercolor techniques from local artist Lara Cheng. All materials provided.",
+      "location": "San Francisco, CA",
+      "date": "2025-08-25",
+      "time": "13:00",
+      "capacity": 20,
+      "createdAt": "2025-07-12 02:30:00PM",
+      "organizerId": "organizer002",
+      "bookedUsers": []
+    },
+    {
+      "id": "3",
+      "title": "Sydney Startup Mixer",
+      "description": "A networking night for entrepreneurs, developers, and investors in the Sydney tech ecosystem.",
+      "location": "Sydney, Australia",
+      "date": "2025-09-05",
+      "time": "18:30",
+      "capacity": 100,
+      "createdAt": "2025-07-14 04:00:00PM",
+      "organizerId": "organizer003",
+      "bookedUsers": []
+    },
+    {
+      "id": "4",
+      "title": "Sunrise Yoga Session",
+      "description": "Start your day with a peaceful guided yoga session in the park. Bring your own mat.",
+      "location": "Austin, TX",
+      "date": "2025-08-03",
+      "time": "06:30",
+      "capacity": 30,
+      "createdAt": "2025-07-11 09:15:00AM",
+      "organizerId": "organizer004",
+      "bookedUsers": []
+    }
+  ]
+}
