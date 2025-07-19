@@ -1,13 +1,40 @@
 {
+  "users": [
+    {
+      "id": "user001",
+      "firstName": "Mohamed",
+      "lastName": "Sharfras",
+      "email": "sharfrasaqsan@gmail.com",
+      "password": "12345678",
+      "phone": "123-456-7890",
+      "address": "363/7, Mullipothana",
+      "city": "Mullipothana",
+      "state": "Trincomalee",
+      "zip": "31312",
+      "country": "Sri Lanka",
+      "createdAt": "2025-07-12 02:30:00PM",
+      "updatedAt": "",
+      "role": "user",
+      "bookedEvents": [
+        "1"
+      ]
+    }
+  ],
   "events": [
     {
+      "id": "1",
       "title": "NYC Web Dev Summit 2025",
       "description": "Join top developers and tech leaders for a full-day conference focused on modern web technologies.",
+      "location": "New York City, NY",
       "date": "2025-08-12",
       "time": "09:00",
-      "location": "New York City, NY",
-      "capacity": "100",
-      "id": "1"
+      "capacity": 50,
+      "createdAt": "2025-07-12 02:30:00PM",
+      "updatedAt": "",
+      "organizerId": "user001",
+      "bookedUsers": [
+        "user001"
+      ]
     },
     {
       "id": "2",
@@ -18,7 +45,8 @@
       "time": "13:00",
       "capacity": 20,
       "createdAt": "2025-07-12 02:30:00PM",
-      "organizerId": "organizer002",
+      "updatedAt": "",
+      "organizerId": "user001",
       "bookedUsers": []
     },
     {
@@ -30,7 +58,8 @@
       "time": "18:30",
       "capacity": 100,
       "createdAt": "2025-07-14 04:00:00PM",
-      "organizerId": "organizer003",
+      "updatedAt": "",
+      "organizerId": "user001",
       "bookedUsers": []
     },
     {
@@ -40,10 +69,25 @@
       "location": "Austin, TX",
       "date": "2025-08-03",
       "time": "06:30",
-      "capacity": 30,
-      "createdAt": "2025-07-11 09:15:00AM",
-      "organizerId": "organizer004",
+      "capacity": 50,
+      "createdAt": "2025-07-11 09:15:00 AM",
+      "updatedAt": "2025-07-19 02:14:45 AM",
+      "organizerId": "user001",
       "bookedUsers": []
+    }
+  ],
+  "bookings": [
+    {
+      "id": "4cd0",
+      "userId": "user001",
+      "eventId": "3",
+      "bookedAt": "2025-07-19 02:56:33 AM"
+    },
+    {
+      "id": "c1f5",
+      "userId": "user001",
+      "eventId": "1",
+      "bookedAt": "2025-07-19 04:20:38 AM"
     }
   ]
 }

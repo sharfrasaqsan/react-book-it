@@ -1,9 +1,17 @@
-import React from 'react'
+import { useData } from "../context/DataContext";
 
 const MyBookings = () => {
-  return (
-    <div>MyBookings</div>
-  )
-}
+  const { bookings } = useData();
 
-export default MyBookings
+  return (
+    <div>
+      <ol>
+        {bookings.map((i) => (
+          <li key={i.id}>{i.title}</li>
+        ))}
+      </ol>
+    </div>
+  );
+};
+
+export default MyBookings;
