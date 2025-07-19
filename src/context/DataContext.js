@@ -74,7 +74,7 @@ export const DataProvider = ({ children }) => {
   // Fetch Bookings
   useEffect(() => {
     const fetchingBookings = async () => {
-      setLoading(false);
+      setLoading(true);
       try {
         const res = await request.get("/bookings");
         if (res.data) return;
@@ -82,7 +82,7 @@ export const DataProvider = ({ children }) => {
       } catch (err) {
         alert("Failed to fetch Bookings. " + err.message);
       } finally {
-        setLoading(true);
+        setLoading(false);
       }
     };
 
@@ -215,9 +215,15 @@ export const DataProvider = ({ children }) => {
       );
       setEvents(updatedEvents);
 
+      // check if user has booked events or not to update the user
+      const userToUpdate = users.find((i) => i.id === currentUser.id);
+      const updatedBookedEvents = userToUpdate.bookedEvents
+        ? [...userToUpdate.bookedEvents, id]
+        : [...userToUpdate.bookedEvents];
+
       // update user booked events
       const userRes = await request.patch(`/users/${currentUser.id}`, {
-        bookedEvents: [...currentUser.bookedEvents, id],
+        bookedEvents: updatedBookedEvents,
       });
       const updatedUsers = users.map((i) =>
         i.id === currentUser.id ? userRes.data : i
@@ -230,6 +236,24 @@ export const DataProvider = ({ children }) => {
     }
   };
 
+  // Cencel Booking
+  const handleCancelBooking = async (eventId) => {
+    try {
+      // Find the booking record
+      const booking = bookings.find(
+        (i) => i.userId === currentUser.id && i.eventId === eventId
+      );
+
+      // Delete booking from bookings
+      if (booking) {
+        await request.delete(`/bookings/${booking.id}`);
+        setBookings(bookings.filter((i) => i.id !== booking.id));
+      }
+    } catch (err) {
+      alert("Failed to cancel booking. " + err.message);
+    }
+  };
+
   return (
     <DataContext.Provider
       value={{
@@ -239,6 +263,7 @@ export const DataProvider = ({ children }) => {
         users,
         loading,
         setLoading,
+        currentUser,
         createFormData,
         setCreateFormData,
         editFormData,
@@ -247,7 +272,7 @@ export const DataProvider = ({ children }) => {
         handleDeleteEvent,
         handleUpdateEvent,
         handleBookEvent,
-        currentUser,
+        handleCancelBooking,
       }}
     >
       {children}
