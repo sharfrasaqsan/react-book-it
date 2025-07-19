@@ -168,25 +168,26 @@ export const DataProvider = ({ children }) => {
 
   // Book Event
   const handleBookEvent = async (id) => {
-    // check if user already booked the event
+    // check if user has already booked this event in bookings
     const alreadyBooked = bookings.find(
-      (i) =>
-        i.userId === currentUser.id &&
-        i.eventId === id &&
-        events.map((i) => i.bookedUsers === currentUser.id) &&
-        users.map((i) => i.bookedEvents === id)
+      (i) => i.eventId === id && i.userId === currentUser.id
     );
 
-    if (alreadyBooked) {
-      alert("You already booked this event!");
+    // check if user has already booked this event in events
+    const alreadyBookedEvent = events.some(
+      // some() returns ture or false
+      (i) => i.id === id && i.bookedUsers?.includes(currentUser.id)
+    );
+
+    // check if user has already booked this event in users
+    const alreadyBookedUser = users.some(
+      (i) => i.id === currentUser.id && i.bookedEvents?.includes(id)
+    );
+
+    if (alreadyBooked || alreadyBookedEvent || alreadyBookedUser) {
+      alert("You have already booked this event");
       return;
     }
-
-    // check if event has booked users or not to update the event
-    const eventToUpdate = events.find((i) => i.id === id);
-    const updatedBookedUsers = eventToUpdate.bookedUsers
-      ? [...eventToUpdate.bookedUsers, currentUser.id]
-      : [...eventToUpdate.bookedUsers];
 
     try {
       const newBooking = {
@@ -198,6 +199,12 @@ export const DataProvider = ({ children }) => {
       const res = await request.post("/bookings", newBooking);
       const newBBookings = [...bookings, res.data];
       setBookings(newBBookings);
+
+      // check if event has booked users or not to update the event
+      const eventToUpdate = events.find((i) => i.id === id);
+      const updatedBookedUsers = eventToUpdate.bookedUsers
+        ? [...eventToUpdate.bookedUsers, currentUser.id]
+        : [...eventToUpdate.bookedUsers];
 
       // update event booked users
       const eventRes = await request.patch(`/events/${id}`, {
@@ -229,6 +236,7 @@ export const DataProvider = ({ children }) => {
         events,
         setEvents,
         bookings,
+        users,
         loading,
         setLoading,
         createFormData,
@@ -239,6 +247,7 @@ export const DataProvider = ({ children }) => {
         handleDeleteEvent,
         handleUpdateEvent,
         handleBookEvent,
+        currentUser,
       }}
     >
       {children}
