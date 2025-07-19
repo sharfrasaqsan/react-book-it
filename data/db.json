@@ -15,9 +15,7 @@
       "createdAt": "2025-07-12 02:30:00PM",
       "updatedAt": "",
       "role": "user",
-      "bookedEvents": [
-        "1"
-      ]
+      "bookedEvents": ["1"]
     }
   ],
   "events": [
@@ -32,9 +30,7 @@
       "createdAt": "2025-07-12 02:30:00PM",
       "updatedAt": "",
       "organizerId": "user001",
-      "bookedUsers": [
-        "user001"
-      ]
+      "bookedUsers": ["user001"]
     },
     {
       "id": "2",
@@ -84,10 +80,10 @@
       "bookedAt": "2025-07-19 02:56:33 AM"
     },
     {
-      "id": "c1f5",
+      "id": "3428",
       "userId": "user001",
       "eventId": "1",
-      "bookedAt": "2025-07-19 04:20:38 AM"
+      "bookedAt": "2025-07-19 03:33:15 PM"
     }
   ]
 }
