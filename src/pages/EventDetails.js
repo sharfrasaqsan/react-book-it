@@ -4,9 +4,14 @@ import { SlCalender } from "react-icons/sl";
 import { FaLocationDot } from "react-icons/fa6";
 
 const EventDetails = () => {
-  const { events, handleDeleteEvent, handleBookEvent } = useData();
+  const { events, handleDeleteEvent, handleBookEvent, handleCancelBooking } =
+    useData();
 
   const { id } = useParams();
+
+  if (events.length === 0) {
+    return <p>Loading...</p>;
+  }
 
   const event = events.find((i) => i.id === id);
 
@@ -27,7 +32,9 @@ const EventDetails = () => {
           <p>{event.description}</p>
           <div>
             <button onClick={() => handleBookEvent(event.id)}>Book Now</button>
-            <button>Cancel Booking</button>
+            <button onClick={() => handleCancelBooking(event.id)}>
+              Cancel Booking
+            </button>
             <Link to={`/event/edit/${event.id}`}>
               <button>Edit Event</button>
             </Link>
