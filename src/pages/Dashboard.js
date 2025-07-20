@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet";
 import EventList from "../components/EventList";
 import { useData } from "../context/DataContext";
 

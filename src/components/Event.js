@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useData } from "../context/DataContext";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const Event = ({ event }) => {
   const { handleBookEvent } = useData();
@@ -7,38 +8,43 @@ const Event = ({ event }) => {
   if (!event) return <p>Loading...</p>;
 
   return (
-    <div>
-      <>
-        <Link to={`/event/${event.id}`}>
-          <h3>{event.title}</h3>
-
-          <p>{event.location}</p>
-          <p>
-            <span>{event.date}</span> <span>{event.time}</span>
+    <div className="col-md-6 col-lg-4 mb-4">
+      <div className="card h-100 shadow-sm">
+        <div className="card-body">
+          <h5 className="card-title">
+            <Link to={`/event/${event.id}`} className="text-decoration-none">
+              {event.title}
+            </Link>
+          </h5>
+          <h6 className="card-subtitle mb-2 text-muted">{event.location}</h6>
+          <p className="mb-2">
+            <span className="me-2">{event.date}</span>
+            <span>{event.time}</span>
           </p>
-        </Link>
-      </>
 
-      {event.capacity === 0 ? (
-        <span>Booking full!!</span>
-      ) : (
-        <span>
-          {event.capacity < 10
-            ? `Only ${event.capacity} ${
-                event.capacity === 1 ? "seat" : "seats"
-              } left!`
-            : null}
-        </span>
-      )}
+          {event.capacity === 0 ? (
+            <span className="badge bg-danger">Booking full!</span>
+          ) : (
+            event.capacity < 15 && (
+              <span className="badge bg-warning text-dark">
+                Only {event.capacity} {event.capacity === 1 ? "seat" : "seats"}{" "}
+                left!
+              </span>
+            )
+          )}
+        </div>
 
-      <button
-        type="submit"
-        onClick={() => handleBookEvent(event.id)}
-        disabled={event.capacity === 0}
-        title={event.capacity === 0 ? "This event is full right now!" : null}
-      >
-        Book Now
-      </button>
+        <div className="card-footer bg-white border-top-0">
+          <button
+            className="btn btn-primary w-100"
+            onClick={() => handleBookEvent(event.id)}
+            disabled={event.capacity === 0}
+            title={event.capacity === 0 ? "This event is full right now!" : ""}
+          >
+            Book Now
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

@@ -6,7 +6,6 @@ import { format } from "date-fns";
 const EditEvent = () => {
   const { events, editFormData, setEditFormData, handleUpdateEvent } =
     useData();
-
   const { id } = useParams();
 
   const event = events.find((i) => i.id === id);
@@ -24,39 +23,65 @@ const EditEvent = () => {
     }
   }, [event, setEditFormData]);
 
-  if (!events.length === 0) {
-    return <p>Loading...</p>;
+  if (!event && events.length === 0) {
+    return <p className="text-center mt-5">Loading...</p>;
   }
 
   return (
-    <div>
+    <div className="container mt-2">
+      <h2 className="mb-4 text-center">Edit Event</h2>
+
       {!event ? (
-        <p>No Event available here!</p>
+        <div className="alert alert-warning text-center">No Event Found</div>
       ) : (
-        <>
-          <h2>Edit Event</h2>
-          <form onSubmit={(e) => e.preventDefault()}>
-            <label htmlFor="event-title">Event Title</label>
+        <form
+          className="row g-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleUpdateEvent(event.id);
+          }}
+        >
+          <div className="col-md-6">
+            <label htmlFor="event-title" className="form-label">
+              Event Title
+            </label>
             <input
               type="text"
+              className="form-control"
               id="event-title"
-              name="event-title"
               value={editFormData.title}
               onChange={(e) =>
                 setEditFormData({ ...editFormData, title: e.target.value })
               }
               required
-              placeholder="Enter event title"
-              autoComplete="off"
               autoFocus
             />
+          </div>
 
-            <label htmlFor="event-description">Event Description</label>
+          <div className="col-md-6">
+            <label htmlFor="event-location" className="form-label">
+              Event Location
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              id="event-location"
+              value={editFormData.location}
+              onChange={(e) =>
+                setEditFormData({ ...editFormData, location: e.target.value })
+              }
+              required
+            />
+          </div>
+
+          <div className="col-12">
+            <label htmlFor="event-description" className="form-label">
+              Event Description
+            </label>
             <textarea
-              name="event-description"
-              id="text-description"
-              cols="30"
-              rows="10"
+              className="form-control"
+              id="event-description"
+              rows="4"
               value={editFormData.description}
               onChange={(e) =>
                 setEditFormData({
@@ -65,73 +90,65 @@ const EditEvent = () => {
                 })
               }
               required
-              placeholder="Enter event description"
-              autoComplete="off"
             />
+          </div>
 
-            <label htmlFor="event-location">Event Location</label>
-            <input
-              type="text"
-              id="event-location"
-              name="event-location"
-              value={editFormData.location}
-              onChange={(e) =>
-                setEditFormData({ ...editFormData, location: e.target.value })
-              }
-              required
-              placeholder="Enter event location"
-              autoComplete="off"
-            />
-
-            <label htmlFor="event-date">Event Date</label>
+          <div className="col-md-4">
+            <label htmlFor="event-date" className="form-label">
+              Event Date
+            </label>
             <input
               type="date"
+              className="form-control"
               id="event-date"
-              name="event-date"
               value={editFormData.date}
               onChange={(e) =>
                 setEditFormData({ ...editFormData, date: e.target.value })
               }
               required
-              placeholder="Enter event date"
-              autoComplete="off"
               min={format(new Date(), "yyyy-MM-dd")}
             />
+          </div>
 
-            <label htmlFor="event-time">Event Time</label>
+          <div className="col-md-4">
+            <label htmlFor="event-time" className="form-label">
+              Event Time
+            </label>
             <input
               type="time"
+              className="form-control"
               id="event-time"
-              name="event-time"
               value={editFormData.time}
               onChange={(e) =>
                 setEditFormData({ ...editFormData, time: e.target.value })
               }
               required
-              placeholder="Enter event time"
-              autoComplete="off"
             />
+          </div>
 
-            <label htmlFor="event-capacity">Event Capacity</label>
+          <div className="col-md-4">
+            <label htmlFor="event-capacity" className="form-label">
+              Event Capacity
+            </label>
             <input
               type="number"
+              className="form-control"
               id="event-capacity"
-              name="event-capacity"
               value={editFormData.capacity}
               onChange={(e) =>
                 setEditFormData({ ...editFormData, capacity: e.target.value })
               }
               required
-              placeholder="Enter event capacity"
-              autoComplete="off"
               min={1}
             />
+          </div>
 
-            <button type="submit" onClick={() => handleUpdateEvent(event.id)}>
+          <div className="col-12 text-end">
+            <button type="submit" className="btn btn-success mt-3">
               Update Event
             </button>
-          </form>
-        </>
+          </div>
+        </form>
       )}
     </div>
   );

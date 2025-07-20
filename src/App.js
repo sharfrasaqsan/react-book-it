@@ -12,6 +12,7 @@ import CreateEvent from "./pages/CreateEvent";
 import NotFound from "./pages/NotFound";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const App = () => {
   return (
@@ -30,7 +31,20 @@ const App = () => {
         </Routes>
       </main>
       <Footer />
-      <ToastContainer position="top-right" autoClose={4000} />
+
+      {/* Bootstrap-themed Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={4000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        toastClassName="alert alert-info m-2"
+        bodyClassName="m-0 text-dark"
+      />
     </div>
   );
 };

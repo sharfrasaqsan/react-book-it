@@ -3,6 +3,7 @@ import request from "../api/request";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { confirmDialog } from "../utils/confirmDialog";
 
 const DataContext = createContext();
 
@@ -31,6 +32,12 @@ export const DataProvider = ({ children }) => {
     time: "",
     location: "",
     capacity: "",
+  });
+  const [userFormData, setUserFormData] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
 
   // Navigation
@@ -159,14 +166,21 @@ export const DataProvider = ({ children }) => {
 
   // Delete Event
   const handleDeleteEvent = async (id) => {
-    try {
-      await request.delete(`/events/${id}`);
-      if (!events) return;
-      setEvents((prev) => prev.filter((i) => i.id !== id));
-      toast.success("Event deleted successfully.");
-      navigate("/");
-    } catch (err) {
-      toast.error("Failed to delete event. " + err.message);
+    const confirm = await confirmDialog({
+      title: "Delete the event",
+      text: "Are you sure you want to delete this event?",
+    });
+
+    if (confirm) {
+      try {
+        await request.delete(`/events/${id}`);
+        if (!events) return;
+        setEvents((prev) => prev.filter((i) => i.id !== id));
+        toast.success("Event deleted successfully.");
+        navigate("/");
+      } catch (err) {
+        toast.error("Failed to delete event. " + err.message);
+      }
     }
   };
 
@@ -204,24 +218,31 @@ export const DataProvider = ({ children }) => {
       return toast.error("Capacity must be greater than 0.");
     }
 
-    try {
-      const updatedEvent = {
-        title: editFormData.title,
-        description: editFormData.description,
-        date: editFormData.date,
-        time: editFormData.time,
-        capacity: Number(editFormData.capacity),
-        location: editFormData.location,
-        updatedAt: format(new Date(), "yyyy-MM-dd hh:mm:ss a"),
-      };
+    const confirm = await confirmDialog({
+      title: "Update the event",
+      text: "Are you sure you want to update this event?",
+    });
 
-      const res = await request.patch(`/events/${id}`, updatedEvent);
-      const updatedEvents = events.map((i) => (i.id === id ? res.data : i));
-      setEvents(updatedEvents);
-      toast.success("Event updated successfully.");
-      navigate(`/event/${id}`);
-    } catch (err) {
-      toast.error("Failed to update event. " + err.message);
+    if (confirm) {
+      try {
+        const updatedEvent = {
+          title: editFormData.title,
+          description: editFormData.description,
+          date: editFormData.date,
+          time: editFormData.time,
+          capacity: Number(editFormData.capacity),
+          location: editFormData.location,
+          updatedAt: format(new Date(), "yyyy-MM-dd hh:mm:ss a"),
+        };
+
+        const res = await request.patch(`/events/${id}`, updatedEvent);
+        const updatedEvents = events.map((i) => (i.id === id ? res.data : i));
+        setEvents(updatedEvents);
+        toast.success("Event updated successfully.");
+        navigate(`/event/${id}`);
+      } catch (err) {
+        toast.error("Failed to update event. " + err.message);
+      }
     }
   };
 
@@ -231,6 +252,7 @@ export const DataProvider = ({ children }) => {
     firstName: "Mohamed",
     lastName: "Sharfras",
     email: "sharfrasaqsan@gmail.com",
+    role: "user",
   };
 
   // Book Event
@@ -321,58 +343,67 @@ export const DataProvider = ({ children }) => {
 
   // Cancel Booking
   const handleCancelBooking = async (eventId) => {
-    try {
-      // Find the booking record
-      const booking = bookings.find(
-        (i) => i.userId === currentUser.id && i.eventId === eventId
-      );
+    const confirm = await confirmDialog({
+      title: "Cancel Booking",
+      text: "Are you sure you want to cancel this booking?",
+    });
 
-      if (!bookings.length) {
-        toast.error("You have not booked any events.");
-        return;
+    if (confirm) {
+      try {
+        // Find the booking record
+        const booking = bookings.find(
+          (i) => i.userId === currentUser.id && i.eventId === eventId
+        );
+
+        if (!bookings.length) {
+          toast.error("You have not booked any events.");
+          return;
+        }
+
+        // Remove booking from bookings list
+        await request.delete(`/bookings/${booking.id}`);
+        setBookings(bookings.filter((i) => i.id !== booking.id));
+
+        // Update event's bookedUsers list
+        const event = events.find((i) => i.id === eventId);
+        const updatedBookedUsers = event.bookedUsers?.filter(
+          (userId) => userId !== currentUser.id
+        );
+
+        const eventRes = await request.patch(`/events/${eventId}`, {
+          bookedUsers: updatedBookedUsers,
+        });
+
+        setEvents(events.map((i) => (i.id === eventId ? eventRes.data : i)));
+
+        // Update user's bookedEvents list
+        const user = users.find((i) => i.id === currentUser.id);
+        const updatedBookedEvents = user.bookedEvents?.filter(
+          (id) => id !== eventId
+        );
+
+        const userRes = await request.patch(`/users/${currentUser.id}`, {
+          bookedEvents: updatedBookedEvents,
+        });
+
+        setUsers(
+          users.map((i) => (i.id === currentUser.id ? userRes.data : i))
+        );
+
+        // Update event capacity
+        const eventCapacity = event.capacity + 1;
+        const eventCapacityRes = await request.patch(`/events/${eventId}`, {
+          capacity: eventCapacity,
+        });
+        setEvents(
+          events.map((i) => (i.id === eventId ? eventCapacityRes.data : i))
+        );
+
+        toast.success("Booking cancelled successfully.");
+        navigate("/");
+      } catch (err) {
+        toast.error("Failed to cancel booking. " + err.message);
       }
-
-      // Remove booking from bookings list
-      await request.delete(`/bookings/${booking.id}`);
-      setBookings(bookings.filter((i) => i.id !== booking.id));
-
-      // Update event's bookedUsers list
-      const event = events.find((i) => i.id === eventId);
-      const updatedBookedUsers = event.bookedUsers?.filter(
-        (userId) => userId !== currentUser.id
-      );
-
-      const eventRes = await request.patch(`/events/${eventId}`, {
-        bookedUsers: updatedBookedUsers,
-      });
-
-      setEvents(events.map((i) => (i.id === eventId ? eventRes.data : i)));
-
-      // Update user's bookedEvents list
-      const user = users.find((i) => i.id === currentUser.id);
-      const updatedBookedEvents = user.bookedEvents?.filter(
-        (id) => id !== eventId
-      );
-
-      const userRes = await request.patch(`/users/${currentUser.id}`, {
-        bookedEvents: updatedBookedEvents,
-      });
-
-      setUsers(users.map((i) => (i.id === currentUser.id ? userRes.data : i)));
-
-      // Update event capacity
-      const eventCapacity = event.capacity + 1;
-      const eventCapacityRes = await request.patch(`/events/${eventId}`, {
-        capacity: eventCapacity,
-      });
-      setEvents(
-        events.map((i) => (i.id === eventId ? eventCapacityRes.data : i))
-      );
-
-      toast.success("Booking cancelled successfully.");
-      navigate("/");
-    } catch (err) {
-      toast.error("Failed to cancel booking. " + err.message);
     }
   };
 
@@ -396,6 +427,8 @@ export const DataProvider = ({ children }) => {
         handleUpdateEvent,
         handleBookEvent,
         handleCancelBooking,
+        userFormData,
+        setUserFormData,
       }}
     >
       {children}

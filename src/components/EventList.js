@@ -5,17 +5,22 @@ const EventList = () => {
   const { events, loading } = useData();
 
   return (
-    <>
+    <div className="container mt-4">
       {loading ? (
-        <p>Loading...</p>
+        <div className="text-center">
+          <div className="spinner-border text-primary" role="status" />
+          <p className="mt-2">Loading events...</p>
+        </div>
+      ) : events.length === 0 ? (
+        <div className="alert alert-info text-center">No events available.</div>
       ) : (
-        <>
-          {events.map((i) => (
-            <Event key={i.id} event={i} />
+        <div className="row">
+          {events.map((event) => (
+            <Event key={event.id} event={event} />
           ))}
-        </>
+        </div>
       )}
-    </>
+    </div>
   );
 };
 
