@@ -1,10 +1,16 @@
+import { Helmet } from "react-helmet";
 import EventList from "../components/EventList";
+import { useData } from "../context/DataContext";
 
 const Dashboard = () => {
+  const { currentUser } = useData();
+
   return (
-    <div>
+    <>
+      <h2>Welcome {currentUser.firstName}</h2>
+
       <EventList />
-    </div>
+    </>
   );
 };
 

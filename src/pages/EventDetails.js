@@ -31,17 +31,32 @@ const EventDetails = () => {
       <p>
         <FaLocationDot /> {event.location}
       </p>
-      <p>Available seats: {event.capacity}</p>
+
+      {event.capacity === 0 ? (
+        <span>Booking full!!</span>
+      ) : (
+        <span>
+          Available {event.capacity === 1 ? "seat" : "seats"}: {event.capacity}
+        </span>
+      )}
+
       <p>{event.description}</p>
       <div>
-        <button onClick={() => handleBookEvent(event.id)}>Book Now</button>
-        <button onClick={() => handleCancelBooking(event.id)}>
+        <button
+          type="button"
+          onClick={() => handleBookEvent(event.id)}
+          disabled={event.capacity === 0}
+          title={event.capacity === 0 ? "This event is full right now!" : null}
+        >
+          Book Now
+        </button>
+        <button type="button" onClick={() => handleCancelBooking(event.id)}>
           Cancel Booking
         </button>
         <Link to={`/event/edit/${event.id}`}>
-          <button>Edit Event</button>
+          <button type="button">Edit Event</button>
         </Link>
-        <button onClick={() => handleDeleteEvent(event.id)}>
+        <button type="button" onClick={() => handleDeleteEvent(event.id)}>
           Delete Event
         </button>
       </div>

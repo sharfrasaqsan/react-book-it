@@ -10,6 +10,8 @@ import MyBookings from "./pages/MyBookings";
 import EditEvent from "./pages/EditEvent";
 import CreateEvent from "./pages/CreateEvent";
 import NotFound from "./pages/NotFound";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
   return (
@@ -28,6 +30,7 @@ const App = () => {
         </Routes>
       </main>
       <Footer />
+      <ToastContainer position="top-right" autoClose={4000} />
     </div>
   );
 };
