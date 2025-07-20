@@ -77,7 +77,7 @@ export const DataProvider = ({ children }) => {
       setLoading(true);
       try {
         const res = await request.get("/bookings");
-        if (res.data) return;
+        if (!res.data) return;
         setBookings(res.data);
       } catch (err) {
         alert("Failed to fetch Bookings. " + err.message);
@@ -163,25 +163,24 @@ export const DataProvider = ({ children }) => {
     firstName: "Mohamed",
     lastName: "Sharfras",
     email: "sharfrasaqsan@gmail.com",
-    bookedEvents: [],
   };
 
   // Book Event
-  const handleBookEvent = async (id) => {
+  const handleBookEvent = async (eventId) => {
     // check if user has already booked this event in bookings
     const alreadyBooked = bookings.find(
-      (i) => i.eventId === id && i.userId === currentUser.id
+      (i) => i.eventId === eventId && i.userId === currentUser.id
     );
 
     // check if user has already booked this event in events
     const alreadyBookedEvent = events.some(
       // some() returns ture or false
-      (i) => i.id === id && i.bookedUsers?.includes(currentUser.id)
+      (i) => i.id === eventId && i.bookedUsers?.includes(currentUser.id)
     );
 
     // check if user has already booked this event in users
     const alreadyBookedUser = users.some(
-      (i) => i.id === currentUser.id && i.bookedEvents?.includes(id)
+      (i) => i.id === currentUser.id && i.bookedEvents?.includes(eventId)
     );
 
     if (alreadyBooked || alreadyBookedEvent || alreadyBookedUser) {
@@ -192,7 +191,7 @@ export const DataProvider = ({ children }) => {
     try {
       const newBooking = {
         userId: currentUser.id,
-        eventId: id,
+        eventId: eventId,
         bookedAt: format(new Date(), "yyyy-MM-dd hh:mm:ss a"),
       };
 
@@ -201,25 +200,25 @@ export const DataProvider = ({ children }) => {
       setBookings(newBBookings);
 
       // check if event has booked users or not to update the event
-      const eventToUpdate = events.find((i) => i.id === id);
-      const updatedBookedUsers = eventToUpdate.bookedUsers
-        ? [...eventToUpdate.bookedUsers, currentUser.id]
-        : [...eventToUpdate.bookedUsers];
+      const event = events.find((event) => event.id === eventId);
+      const updatedBookedUsers = event.bookedUsers
+        ? [...event.bookedUsers, currentUser.id]
+        : [...event.bookedUsers];
 
       // update event booked users
-      const eventRes = await request.patch(`/events/${id}`, {
+      const eventRes = await request.patch(`/events/${eventId}`, {
         bookedUsers: updatedBookedUsers,
       });
       const updatedEvents = events.map((i) =>
-        i.id === id ? eventRes.data : i
+        i.id === eventId ? eventRes.data : i
       );
       setEvents(updatedEvents);
 
       // check if user has booked events or not to update the user
-      const userToUpdate = users.find((i) => i.id === currentUser.id);
-      const updatedBookedEvents = userToUpdate.bookedEvents
-        ? [...userToUpdate.bookedEvents, id]
-        : [...userToUpdate.bookedEvents];
+      const user = users.find((i) => i.id === currentUser.id);
+      const updatedBookedEvents = user.bookedEvents
+        ? [...user.bookedEvents, eventId]
+        : [...user.bookedEvents];
 
       // update user booked events
       const userRes = await request.patch(`/users/${currentUser.id}`, {
@@ -236,7 +235,7 @@ export const DataProvider = ({ children }) => {
     }
   };
 
-  // Cencel Booking
+  // Cancel Booking
   const handleCancelBooking = async (eventId) => {
     try {
       // Find the booking record
@@ -244,11 +243,41 @@ export const DataProvider = ({ children }) => {
         (i) => i.userId === currentUser.id && i.eventId === eventId
       );
 
-      // Delete booking from bookings
-      if (booking) {
-        await request.delete(`/bookings/${booking.id}`);
-        setBookings(bookings.filter((i) => i.id !== booking.id));
+      if (!bookings.length) {
+        alert("Bookings are not loaded yet. Please try again.");
+        return;
       }
+
+      // Remove booking from bookings list
+      await request.delete(`/bookings/${booking.id}`);
+      setBookings(bookings.filter((i) => i.id !== booking.id));
+
+      // Update event's bookedUsers list
+      const event = events.find((i) => i.id === eventId);
+      const updatedBookedUsers = event.bookedUsers?.filter(
+        (userId) => userId !== currentUser.id
+      );
+
+      const eventRes = await request.patch(`/events/${eventId}`, {
+        bookedUsers: updatedBookedUsers,
+      });
+
+      setEvents(events.map((i) => (i.id === eventId ? eventRes.data : i)));
+
+      // Update user's bookedEvents list
+      const user = users.find((i) => i.id === currentUser.id);
+      const updatedBookedEvents = user.bookedEvents?.filter(
+        (id) => id !== eventId
+      );
+
+      const userRes = await request.patch(`/users/${currentUser.id}`, {
+        bookedEvents: updatedBookedEvents,
+      });
+
+      setUsers(users.map((i) => (i.id === currentUser.id ? userRes.data : i)));
+
+      alert("Booking canceled successfully.");
+      navigate("/");
     } catch (err) {
       alert("Failed to cancel booking. " + err.message);
     }
@@ -260,6 +289,7 @@ export const DataProvider = ({ children }) => {
         events,
         setEvents,
         bookings,
+        setBookings,
         users,
         loading,
         setLoading,
