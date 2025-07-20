@@ -1,7 +1,7 @@
 // src/components/Header.js
 import { useState } from "react";
 import "../styles/Header.css";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -21,20 +21,31 @@ const Header = () => {
       <nav className={`nav ${menuOpen ? "open" : ""}`}>
         <ul>
           <li>
-            <Link to="/">Home</Link>
+            <NavLink
+              to="/"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              Home
+            </NavLink>
           </li>
-          <li>
-            <Link to="/my-bookings">My Bookings</Link>
-          </li>
-          <li>
-            <Link to="/create">Create Events</Link>
-          </li>
-          <li>
-            <Link to="/login">Login</Link>
-          </li>
-          <li>
-            <Link to="/register">Register</Link>
-          </li>
+
+          <>
+            <li>
+              <Link to="/my-bookings">My Bookings</Link>
+            </li>
+            <li>
+              <Link to="/create">Create Events</Link>
+            </li>
+          </>
+
+          <>
+            <li>
+              <Link to="/login">Login</Link>
+            </li>
+            <li>
+              <Link to="/register">Register</Link>
+            </li>
+          </>
         </ul>
       </nav>
     </header>

@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import request from "../api/request";
-import { format, isBefore, isValid, parseISO } from "date-fns";
+import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const DataContext = createContext();
 
@@ -44,7 +45,7 @@ export const DataProvider = ({ children }) => {
         if (!res.data) return;
         setEvents(res.data);
       } catch (err) {
-        alert("Failed to fetch events. " + err.message);
+        toast.error("Failed to fetch Events. " + err.message);
       } finally {
         setLoading(false);
       }
@@ -62,7 +63,7 @@ export const DataProvider = ({ children }) => {
         if (!res.data) return;
         setUsers(res.data);
       } catch (err) {
-        alert("Failed to fetch users. " + err.message);
+        toast.error("Failed to fetch Users. " + err.message);
       } finally {
         setLoading(false);
       }
@@ -80,7 +81,7 @@ export const DataProvider = ({ children }) => {
         if (!res.data) return;
         setBookings(res.data);
       } catch (err) {
-        alert("Failed to fetch Bookings. " + err.message);
+        toast.error("Failed to fetch Bookings. " + err.message);
       } finally {
         setLoading(false);
       }
@@ -99,13 +100,13 @@ export const DataProvider = ({ children }) => {
       !createFormData.location ||
       !createFormData.capacity
     ) {
-      return alert("Please fill in all the fields.");
+      return toast.error("Please fill in all the fields.");
     }
 
     // Check if date and time are valid
     const now = new Date();
     if (!createFormData.date || !createFormData.time) {
-      return alert("Please select both date and time.");
+      return toast.error("Please select both date and time.");
     }
     // Combine date and time like: "2025-07-20T14:30"
     const eventDateTimeString = `${createFormData.date}T${createFormData.time}`;
@@ -113,16 +114,16 @@ export const DataProvider = ({ children }) => {
     const eventDateTime = new Date(eventDateTimeString);
     // Check if it's a valid date
     if (isNaN(eventDateTime.getTime())) {
-      return alert("Invalid date and time.");
+      return toast.error("Invalid date and time.");
     }
     // Compare with current date and time
     if (eventDateTime < now) {
-      return alert("Event date and time must be in the future.");
+      return toast.error("Event date and time must be in the future.");
     }
 
     // Check if capacity is greater than 0
     if (createFormData.capacity <= 0) {
-      return alert("Capacity must be greater than 0.");
+      return toast.error("Capacity must be greater than 0.");
     }
 
     try {
@@ -149,9 +150,10 @@ export const DataProvider = ({ children }) => {
         location: "",
         capacity: "",
       });
+      toast.success("Event created successfully.");
       navigate("/");
     } catch (err) {
-      alert("Event creation failed. " + err.message);
+      toast.error("Failed to create event. " + err.message);
     }
   };
 
@@ -161,9 +163,10 @@ export const DataProvider = ({ children }) => {
       await request.delete(`/events/${id}`);
       if (!events) return;
       setEvents((prev) => prev.filter((i) => i.id !== id));
+      toast.success("Event deleted successfully.");
       navigate("/");
     } catch (err) {
-      alert("Failed to delete event. " + err.message);
+      toast.error("Failed to delete event. " + err.message);
     }
   };
 
@@ -175,13 +178,13 @@ export const DataProvider = ({ children }) => {
       !editFormData.location ||
       !editFormData.capacity
     ) {
-      return alert("Please fill in all the fields.");
+      return toast.error("Please fill in all the fields.");
     }
 
     // Check if date and time are valid
     const now = new Date();
     if (!editFormData.date || !editFormData.time) {
-      return alert("Please select both date and time.");
+      return toast.error("Please select both date and time.");
     }
     // Combine date and time like: "2025-07-20T14:30"
     const eventDateTimeString = `${editFormData.date}T${editFormData.time}`;
@@ -189,16 +192,16 @@ export const DataProvider = ({ children }) => {
     const eventDateTime = new Date(eventDateTimeString);
     // Check if it's a valid date
     if (isNaN(eventDateTime.getTime())) {
-      return alert("Invalid date and time.");
+      return toast.error("Invalid date and time.");
     }
     // Compare with current date and time
     if (eventDateTime < now) {
-      return alert("Event date and time must be in the future.");
+      return toast.error("Event date and time must be in the future.");
     }
 
     // Check if capacity is greater than 0
-    if (createFormData.capacity <= 0) {
-      return alert("Capacity must be greater than 0.");
+    if (createFormData.capacity > 0) {
+      return toast.error("Capacity must be greater than 0.");
     }
 
     try {
@@ -215,9 +218,10 @@ export const DataProvider = ({ children }) => {
       const res = await request.patch(`/events/${id}`, updatedEvent);
       const updatedEvents = events.map((i) => (i.id === id ? res.data : i));
       setEvents(updatedEvents);
+      toast.success("Event updated successfully.");
       navigate(`/event/${id}`);
     } catch (err) {
-      alert("Failed to update event. " + err.message);
+      toast.error("Failed to update event. " + err.message);
     }
   };
 
@@ -248,7 +252,13 @@ export const DataProvider = ({ children }) => {
     );
 
     if (alreadyBooked || alreadyBookedEvent || alreadyBookedUser) {
-      alert("You have already booked this event");
+      toast.error("You have already booked this event.");
+      return;
+    }
+
+    const event = events.find((i) => i.id === eventId);
+    if (event.capacity === 0) {
+      toast.error("This event is fully booked.");
       return;
     }
 
@@ -302,10 +312,10 @@ export const DataProvider = ({ children }) => {
         events.map((i) => (i.id === eventId ? eventCapacityRes.data : i))
       );
 
-      alert("Event has been successfully booked!");
+      toast.success("Event booked successfully.");
       navigate("/my-bookings");
     } catch (err) {
-      alert("Event booking failed. " + err.message);
+      toast.error("Failed to book event. " + err.message);
     }
   };
 
@@ -318,7 +328,7 @@ export const DataProvider = ({ children }) => {
       );
 
       if (!bookings.length) {
-        alert("You have not booked this event. Please try again.");
+        toast.error("You have not booked any events.");
         return;
       }
 
@@ -359,10 +369,10 @@ export const DataProvider = ({ children }) => {
         events.map((i) => (i.id === eventId ? eventCapacityRes.data : i))
       );
 
-      alert("Booking canceled successfully.");
+      toast.success("Booking cancelled successfully.");
       navigate("/");
     } catch (err) {
-      alert("Failed to cancel booking. " + err.message);
+      toast.error("Failed to cancel booking. " + err.message);
     }
   };
 

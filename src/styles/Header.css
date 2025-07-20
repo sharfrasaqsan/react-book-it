@@ -43,6 +43,11 @@
   text-decoration: underline;
 }
 
+.nav a.active {
+  text-decoration: underline;
+  font-weight: bold;
+}
+
 /* Hamburger button (hidden on desktop) */
 .menu-toggle {
   display: none;
