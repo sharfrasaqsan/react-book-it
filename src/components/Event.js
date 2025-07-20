@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
+import { useData } from "../context/DataContext";
 
 const Event = ({ event }) => {
+  const { handleBookEvent } = useData();
+
   return (
     <div>
       <>
@@ -12,7 +15,9 @@ const Event = ({ event }) => {
           </p>
         </Link>
       </>
-      <button type="submit">Book Now</button>
+      <button type="submit" onClick={() => handleBookEvent(event.id)}>
+        Book Now
+      </button>
     </div>
   );
 };

@@ -15,35 +15,36 @@ const EventDetails = () => {
 
   const event = events.find((i) => i.id === id);
 
+  if (!event) {
+    return <p>No Event available here!</p>;
+  }
+
   return (
     <div>
-      {!event ? (
-        <p>No Event available here!</p>
-      ) : (
-        <>
-          <h2>{event.title}</h2>
-          <p>
-            <SlCalender /> <span>{event.date}</span> <span>{event.time}</span>
-          </p>
-          <p>
-            <FaLocationDot /> {event.location}
-          </p>
-          <p>Available seats: {event.capacity}</p>
-          <p>{event.description}</p>
-          <div>
-            <button onClick={() => handleBookEvent(event.id)}>Book Now</button>
-            <button onClick={() => handleCancelBooking(event.id)}>
-              Cancel Booking
-            </button>
-            <Link to={`/event/edit/${event.id}`}>
-              <button>Edit Event</button>
-            </Link>
-            <button onClick={() => handleDeleteEvent(event.id)}>
-              Delete Event
-            </button>
-          </div>
-        </>
-      )}
+      <p>
+        Back to <Link to="/">Events</Link>
+      </p>
+      <h2>{event.title}</h2>
+      <p>
+        <SlCalender /> <span>{event.date}</span> <span>{event.time}</span>
+      </p>
+      <p>
+        <FaLocationDot /> {event.location}
+      </p>
+      <p>Available seats: {event.capacity}</p>
+      <p>{event.description}</p>
+      <div>
+        <button onClick={() => handleBookEvent(event.id)}>Book Now</button>
+        <button onClick={() => handleCancelBooking(event.id)}>
+          Cancel Booking
+        </button>
+        <Link to={`/event/edit/${event.id}`}>
+          <button>Edit Event</button>
+        </Link>
+        <button onClick={() => handleDeleteEvent(event.id)}>
+          Delete Event
+        </button>
+      </div>
     </div>
   );
 };
