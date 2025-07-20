@@ -229,6 +229,16 @@ export const DataProvider = ({ children }) => {
       );
       setUsers(updatedUsers);
 
+      // update event capacity
+      const eventCapacity = event.capacity - 1;
+      const eventCapacityRes = await request.patch(`/events/${eventId}`, {
+        capacity: eventCapacity,
+      });
+      setEvents(
+        events.map((i) => (i.id === eventId ? eventCapacityRes.data : i))
+      );
+
+      alert("Event has been successfully booked!");
       navigate("/my-bookings");
     } catch (err) {
       alert("Event booking failed. " + err.message);
@@ -275,6 +285,15 @@ export const DataProvider = ({ children }) => {
       });
 
       setUsers(users.map((i) => (i.id === currentUser.id ? userRes.data : i)));
+
+      // Update event capacity
+      const eventCapacity = event.capacity + 1;
+      const eventCapacityRes = await request.patch(`/events/${eventId}`, {
+        capacity: eventCapacity,
+      });
+      setEvents(
+        events.map((i) => (i.id === eventId ? eventCapacityRes.data : i))
+      );
 
       alert("Booking canceled successfully.");
       navigate("/");
