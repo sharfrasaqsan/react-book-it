@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import { useEffect } from "react";
+import { format } from "date-fns";
 
 const EditEvent = () => {
   const { events, editFormData, setEditFormData, handleUpdateEvent } =
@@ -23,6 +24,10 @@ const EditEvent = () => {
     }
   }, [event, setEditFormData]);
 
+  if (!events.length === 0) {
+    return <p>Loading...</p>;
+  }
+
   return (
     <div>
       {!event ? (
@@ -31,7 +36,7 @@ const EditEvent = () => {
         <>
           <h2>Edit Event</h2>
           <form onSubmit={(e) => e.preventDefault()}>
-            <label htmlFor="event-title">Event Title: </label>
+            <label htmlFor="event-title">Event Title</label>
             <input
               type="text"
               id="event-title"
@@ -41,9 +46,12 @@ const EditEvent = () => {
                 setEditFormData({ ...editFormData, title: e.target.value })
               }
               required
+              placeholder="Enter event title"
+              autoComplete="off"
+              autoFocus
             />
 
-            <label htmlFor="event-description">Event Description: </label>
+            <label htmlFor="event-description">Event Description</label>
             <textarea
               name="event-description"
               id="text-description"
@@ -57,9 +65,11 @@ const EditEvent = () => {
                 })
               }
               required
+              placeholder="Enter event description"
+              autoComplete="off"
             />
 
-            <label htmlFor="event-location">Event Location: </label>
+            <label htmlFor="event-location">Event Location</label>
             <input
               type="text"
               id="event-location"
@@ -69,9 +79,11 @@ const EditEvent = () => {
                 setEditFormData({ ...editFormData, location: e.target.value })
               }
               required
+              placeholder="Enter event location"
+              autoComplete="off"
             />
 
-            <label htmlFor="event-date">Event Date: </label>
+            <label htmlFor="event-date">Event Date</label>
             <input
               type="date"
               id="event-date"
@@ -81,9 +93,12 @@ const EditEvent = () => {
                 setEditFormData({ ...editFormData, date: e.target.value })
               }
               required
+              placeholder="Enter event date"
+              autoComplete="off"
+              min={format(new Date(), "yyyy-MM-dd")}
             />
 
-            <label htmlFor="event-time">Event Time: </label>
+            <label htmlFor="event-time">Event Time</label>
             <input
               type="time"
               id="event-time"
@@ -93,9 +108,11 @@ const EditEvent = () => {
                 setEditFormData({ ...editFormData, time: e.target.value })
               }
               required
+              placeholder="Enter event time"
+              autoComplete="off"
             />
 
-            <label htmlFor="event-capacity">Event Capacity: </label>
+            <label htmlFor="event-capacity">Event Capacity</label>
             <input
               type="number"
               id="event-capacity"
@@ -105,6 +122,9 @@ const EditEvent = () => {
                 setEditFormData({ ...editFormData, capacity: e.target.value })
               }
               required
+              placeholder="Enter event capacity"
+              autoComplete="off"
+              min={1}
             />
 
             <button type="submit" onClick={() => handleUpdateEvent(event.id)}>
