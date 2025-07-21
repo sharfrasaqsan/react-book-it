@@ -15,6 +15,7 @@ export const DataProvider = ({ children }) => {
 
   // Boolean State
   const [loading, setLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // String State
   const [createFormData, setCreateFormData] = useState({
@@ -34,14 +35,30 @@ export const DataProvider = ({ children }) => {
     capacity: "",
   });
   const [userFormData, setUserFormData] = useState({
-    fullName: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
+    role: "",
+    phone: "",
+    address: "",
+    city: "",
+    state: "",
+    country: "",
   });
 
   // Navigation
   const navigate = useNavigate();
+
+  //   For JSON-SERVER
+  const currentUser = {
+    id: "user001",
+    firstName: "Mohamed",
+    lastName: "Sharfras",
+    email: "sharfrasaqsan@gmail.com",
+    role: "user",
+  };
 
   // Fetch Event
   useEffect(() => {
@@ -97,73 +114,6 @@ export const DataProvider = ({ children }) => {
     fetchingBookings();
   }, []);
 
-  // Create Event
-  const handleCreateEvent = async (e) => {
-    e.preventDefault();
-
-    if (
-      !createFormData.title ||
-      !createFormData.description ||
-      !createFormData.location ||
-      !createFormData.capacity
-    ) {
-      return toast.error("Please fill in all the fields.");
-    }
-
-    // Check if date and time are valid
-    const now = new Date();
-    if (!createFormData.date || !createFormData.time) {
-      return toast.error("Please select both date and time.");
-    }
-    // Combine date and time like: "2025-07-20T14:30"
-    const eventDateTimeString = `${createFormData.date}T${createFormData.time}`;
-    // Convert to a Date object
-    const eventDateTime = new Date(eventDateTimeString);
-    // Check if it's a valid date
-    if (isNaN(eventDateTime.getTime())) {
-      return toast.error("Invalid date and time.");
-    }
-    // Compare with current date and time
-    if (eventDateTime < now) {
-      return toast.error("Event date and time must be in the future.");
-    }
-
-    // Check if capacity is greater than 0
-    if (createFormData.capacity <= 0) {
-      return toast.error("Capacity must be greater than 0.");
-    }
-
-    try {
-      const newEvent = {
-        title: createFormData.title,
-        description: createFormData.description,
-        location: createFormData.location,
-        date: createFormData.date,
-        time: createFormData.time,
-        capacity: createFormData.capacity,
-        createdAt: format(new Date(), "yyyy-MM-dd hh:mm:ss a"),
-        organizerId: null,
-        bookedUsers: [],
-      };
-
-      const res = await request.post("/events", newEvent);
-      const newEvents = [...events, res.data];
-      setEvents(newEvents);
-      setCreateFormData({
-        title: "",
-        description: "",
-        date: "",
-        time: "",
-        location: "",
-        capacity: "",
-      });
-      toast.success("Event created successfully.");
-      navigate("/");
-    } catch (err) {
-      toast.error("Failed to create event. " + err.message);
-    }
-  };
-
   // Delete Event
   const handleDeleteEvent = async (id) => {
     const confirm = await confirmDialog({
@@ -182,77 +132,6 @@ export const DataProvider = ({ children }) => {
         toast.error("Failed to delete event. " + err.message);
       }
     }
-  };
-
-  // Update Event
-  const handleUpdateEvent = async (id) => {
-    if (
-      !editFormData.title ||
-      !editFormData.description ||
-      !editFormData.location ||
-      !editFormData.capacity
-    ) {
-      return toast.error("Please fill in all the fields.");
-    }
-
-    // Check if date and time are valid
-    const now = new Date();
-    if (!editFormData.date || !editFormData.time) {
-      return toast.error("Please select both date and time.");
-    }
-    // Combine date and time like: "2025-07-20T14:30"
-    const eventDateTimeString = `${editFormData.date}T${editFormData.time}`;
-    // Convert to a Date object
-    const eventDateTime = new Date(eventDateTimeString);
-    // Check if it's a valid date
-    if (isNaN(eventDateTime.getTime())) {
-      return toast.error("Invalid date and time.");
-    }
-    // Compare with current date and time
-    if (eventDateTime < now) {
-      return toast.error("Event date and time must be in the future.");
-    }
-
-    // Check if capacity is greater than 0
-    if (createFormData.capacity > 0) {
-      return toast.error("Capacity must be greater than 0.");
-    }
-
-    const confirm = await confirmDialog({
-      title: "Update the event",
-      text: "Are you sure you want to update this event?",
-    });
-
-    if (confirm) {
-      try {
-        const updatedEvent = {
-          title: editFormData.title,
-          description: editFormData.description,
-          date: editFormData.date,
-          time: editFormData.time,
-          capacity: Number(editFormData.capacity),
-          location: editFormData.location,
-          updatedAt: format(new Date(), "yyyy-MM-dd hh:mm:ss a"),
-        };
-
-        const res = await request.patch(`/events/${id}`, updatedEvent);
-        const updatedEvents = events.map((i) => (i.id === id ? res.data : i));
-        setEvents(updatedEvents);
-        toast.success("Event updated successfully.");
-        navigate(`/event/${id}`);
-      } catch (err) {
-        toast.error("Failed to update event. " + err.message);
-      }
-    }
-  };
-
-  //   For JSON-SERVER
-  const currentUser = {
-    id: "user001",
-    firstName: "Mohamed",
-    lastName: "Sharfras",
-    email: "sharfrasaqsan@gmail.com",
-    role: "user",
   };
 
   // Book Event
@@ -415,6 +294,7 @@ export const DataProvider = ({ children }) => {
         bookings,
         setBookings,
         users,
+        setUsers,
         loading,
         setLoading,
         currentUser,
@@ -422,13 +302,12 @@ export const DataProvider = ({ children }) => {
         setCreateFormData,
         editFormData,
         setEditFormData,
-        handleCreateEvent,
         handleDeleteEvent,
-        handleUpdateEvent,
         handleBookEvent,
         handleCancelBooking,
         userFormData,
         setUserFormData,
+        navigate,
       }}
     >
       {children}

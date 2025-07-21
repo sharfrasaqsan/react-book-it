@@ -10,12 +10,27 @@
       "address": "363/7, Mullipothana",
       "city": "Mullipothana",
       "state": "Trincomalee",
-      "zip": "31312",
       "country": "Sri Lanka",
       "createdAt": "2025-07-12 02:30:00PM",
-      "updatedAt": "",
+      "updatedAt": null,
       "role": "user",
       "bookedEvents": ["event002"]
+    },
+    {
+      "id": "1255",
+      "firstName": "Sharfras",
+      "lastName": "Aqsan",
+      "email": "aqsan@gmail.com",
+      "password": "12345678",
+      "role": "organizer",
+      "phone": "",
+      "address": "",
+      "city": "",
+      "state": "",
+      "country": "",
+      "createdAt": "2025-07-21 3:31:59 AM",
+      "updatedAt": null,
+      "bookedEvents": []
     }
   ],
   "events": [

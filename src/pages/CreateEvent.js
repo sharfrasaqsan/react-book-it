@@ -1,10 +1,80 @@
 import { format } from "date-fns";
 import { useData } from "../context/DataContext";
+import { toast } from "react-toastify";
+import request from "../api/request";
 
 const CreateEvent = () => {
-  const { createFormData, setCreateFormData, handleCreateEvent } = useData();
+  const { events, setEvents, createFormData, setCreateFormData, navigate } =
+    useData();
 
   if (!createFormData) return <p>Loading...</p>;
+
+  // Create Event
+  const handleCreateEvent = async (e) => {
+    e.preventDefault();
+
+    if (
+      !createFormData.title ||
+      !createFormData.description ||
+      !createFormData.location ||
+      !createFormData.capacity
+    ) {
+      return toast.error("Please fill in all the fields.");
+    }
+
+    // Check if date and time are valid
+    const now = new Date();
+    if (!createFormData.date || !createFormData.time) {
+      return toast.error("Please select both date and time.");
+    }
+    // Combine date and time like: "2025-07-20T14:30"
+    const eventDateTimeString = `${createFormData.date}T${createFormData.time}`;
+    // Convert to a Date object
+    const eventDateTime = new Date(eventDateTimeString);
+    // Check if it's a valid date
+    if (isNaN(eventDateTime.getTime())) {
+      return toast.error("Invalid date and time.");
+    }
+    // Compare with current date and time
+    if (eventDateTime < now) {
+      return toast.error("Event date and time must be in the future.");
+    }
+
+    // Check if capacity is greater than 0
+    if (createFormData.capacity <= 0) {
+      return toast.error("Capacity must be greater than 0.");
+    }
+
+    try {
+      const newEvent = {
+        title: createFormData.title,
+        description: createFormData.description,
+        location: createFormData.location,
+        date: createFormData.date,
+        time: createFormData.time,
+        capacity: createFormData.capacity,
+        createdAt: format(new Date(), "yyyy-MM-dd hh:mm:ss a"),
+        organizerId: null,
+        bookedUsers: [],
+      };
+
+      const res = await request.post("/events", newEvent);
+      const newEvents = [...events, res.data];
+      setEvents(newEvents);
+      setCreateFormData({
+        title: "",
+        description: "",
+        date: "",
+        time: "",
+        location: "",
+        capacity: "",
+      });
+      toast.success("Event created successfully.");
+      navigate("/");
+    } catch (err) {
+      toast.error("Failed to create event. " + err.message);
+    }
+  };
 
   return (
     <div className="container mt-2">

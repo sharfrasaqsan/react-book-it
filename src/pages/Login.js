@@ -1,16 +1,55 @@
+import { toast } from "react-toastify";
 import { useData } from "../context/DataContext";
+import request from "../api/request";
 
 const Login = () => {
-  const { userFormData, setUserFormData } = useData();
+  const { users, userFormData, setUserFormData, navigate } = useData();
+
+  if (userFormData.length === 0) {
+    return <p>Loading user data...</p>;
+  }
 
   const handleChange = (e) => {
     setUserFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add your login logic here
-    console.log("Login submitted", userFormData);
+
+    if (!userFormData.email || !userFormData.password)
+      return toast.error("Please fill in all the fields.");
+
+    if (userFormData.password.length < 6)
+      return toast.error("Password must be at least 6 characters long.");
+
+    const user = users.find(
+      (i) =>
+        i.email === userFormData.email && i.password === userFormData.password
+    );
+
+    if (!user) {
+      return toast.error("Invalid email or password.");
+    }
+
+    try {
+      const res = await request.get("/users", {
+        params: {
+          email: userFormData.email,
+          password: userFormData.password,
+        },
+      });
+      if (!res.data) {
+        toast.error("User not found.");
+      }
+      setUserFormData({
+        email: "",
+        password: "",
+      });
+      toast.success("Login successful.");
+      navigate("/");
+    } catch (err) {
+      toast.error("Failed to login. " + err.message);
+    }
   };
 
   return (
