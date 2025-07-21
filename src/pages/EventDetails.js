@@ -6,6 +6,7 @@ import { FaLocationDot } from "react-icons/fa6";
 const EventDetails = () => {
   const {
     events,
+    users,
     handleDeleteEvent,
     handleBookEvent,
     handleCancelBooking,
@@ -18,8 +19,11 @@ const EventDetails = () => {
 
   const event = events.find((i) => i.id === id);
 
-  if (!event)
-    return <p className="text-center mt-5">No Event available here!</p>;
+  if (!event) return <p className="text-center mt-5">Event not found.</p>;
+
+  const eventOrganizer = event.organizerId
+    ? users.find((i) => i.id === event.organizerId)
+    : null;
 
   return (
     <div className="container mt-2">
@@ -67,6 +71,10 @@ const EventDetails = () => {
         </div>
 
         <p className="mb-4">{event.description}</p>
+
+        <p>
+          Posted by: {eventOrganizer?.firstName} {eventOrganizer?.lastName}
+        </p>
 
         <div className="d-flex flex-wrap gap-2">
           {!event.bookedUsers?.includes(currentUser.id) && (

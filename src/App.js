@@ -10,6 +10,7 @@ import MyBookings from "./pages/MyBookings";
 import EditEvent from "./pages/EditEvent";
 import CreateEvent from "./pages/CreateEvent";
 import NotFound from "./pages/NotFound";
+import UserProfile from "./pages/UserProfile";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -21,6 +22,7 @@ const App = () => {
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Dashboard />} />
+          <Route path="/profile" element={<UserProfile />} />
           <Route path="/my-bookings" element={<MyBookings />} />
           <Route path="/create" element={<CreateEvent />} />
           <Route path="/event/:id" element={<EventDetails />} />
@@ -35,7 +37,7 @@ const App = () => {
       {/* Bootstrap-themed Toast Container */}
       <ToastContainer
         position="top-right"
-        autoClose={4000}
+        autoClose={3000}
         hideProgressBar={false}
         newestOnTop
         closeOnClick

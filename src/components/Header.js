@@ -52,7 +52,7 @@ const Header = () => {
             </>
           )}
 
-          {!currentUser && (
+          {/* {!currentUser && ( */}
             <>
               <li className="nav-item">
                 <NavLink to="/login" className="nav-link">
@@ -62,6 +62,16 @@ const Header = () => {
               <li className="nav-item">
                 <NavLink to="/register" className="nav-link">
                   Register
+                </NavLink>
+              </li>
+            </>
+          {/* )} */}
+
+          {currentUser && (
+            <>
+              <li className="nav-item">
+                <NavLink to="/profile" className="nav-link">
+                  <i className="fa fa-user"></i> {currentUser.firstName}
                 </NavLink>
               </li>
             </>

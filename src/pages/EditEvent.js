@@ -2,10 +2,19 @@ import { useParams } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import { useEffect } from "react";
 import { format } from "date-fns";
+import { toast } from "react-toastify";
+import { confirmDialog } from "../utils/confirmDialog";
+import request from "../api/request";
 
 const EditEvent = () => {
-  const { events, editFormData, setEditFormData, handleUpdateEvent } =
-    useData();
+  const {
+    events,
+    setEvents,
+    createFormData,
+    editFormData,
+    setEditFormData,
+    navigate,
+  } = useData();
   const { id } = useParams();
 
   const event = events.find((i) => i.id === id);
@@ -26,6 +35,68 @@ const EditEvent = () => {
   if (!event && events.length === 0) {
     return <p className="text-center mt-5">Loading...</p>;
   }
+
+  // Update Event
+  const handleUpdateEvent = async (id) => {
+    if (
+      !editFormData.title ||
+      !editFormData.description ||
+      !editFormData.location ||
+      !editFormData.capacity
+    ) {
+      return toast.error("Please fill in all the fields.");
+    }
+
+    // Check if date and time are valid
+    const now = new Date();
+    if (!editFormData.date || !editFormData.time) {
+      return toast.error("Please select both date and time.");
+    }
+    // Combine date and time like: "2025-07-20T14:30"
+    const eventDateTimeString = `${editFormData.date}T${editFormData.time}`;
+    // Convert to a Date object
+    const eventDateTime = new Date(eventDateTimeString);
+    // Check if it's a valid date
+    if (isNaN(eventDateTime.getTime())) {
+      return toast.error("Invalid date and time.");
+    }
+    // Compare with current date and time
+    if (eventDateTime < now) {
+      return toast.error("Event date and time must be in the future.");
+    }
+
+    // Check if capacity is greater than 0
+    if (createFormData.capacity > 0) {
+      return toast.error("Capacity must be greater than 0.");
+    }
+
+    const confirm = await confirmDialog({
+      title: "Update the event",
+      text: "Are you sure you want to update this event?",
+    });
+
+    if (confirm) {
+      try {
+        const updatedEvent = {
+          title: editFormData.title,
+          description: editFormData.description,
+          date: editFormData.date,
+          time: editFormData.time,
+          capacity: Number(editFormData.capacity),
+          location: editFormData.location,
+          updatedAt: format(new Date(), "yyyy-MM-dd hh:mm:ss a"),
+        };
+
+        const res = await request.patch(`/events/${id}`, updatedEvent);
+        const updatedEvents = events.map((i) => (i.id === id ? res.data : i));
+        setEvents(updatedEvents);
+        toast.success("Event updated successfully.");
+        navigate(`/event/${id}`);
+      } catch (err) {
+        toast.error("Failed to update event. " + err.message);
+      }
+    }
+  };
 
   return (
     <div className="container mt-2">
