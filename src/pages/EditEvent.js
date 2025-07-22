@@ -7,14 +7,8 @@ import { confirmDialog } from "../utils/confirmDialog";
 import request from "../api/request";
 
 const EditEvent = () => {
-  const {
-    events,
-    setEvents,
-    createFormData,
-    editFormData,
-    setEditFormData,
-    navigate,
-  } = useData();
+  const { events, setEvents, editFormData, setEditFormData, navigate } =
+    useData();
   const { id } = useParams();
 
   const event = events.find((i) => i.id === id);
@@ -66,7 +60,7 @@ const EditEvent = () => {
     }
 
     // Check if capacity is greater than 0
-    if (createFormData.capacity > 0) {
+    if (editFormData.capacity <= 0) {
       return toast.error("Capacity must be greater than 0.");
     }
 
@@ -75,31 +69,35 @@ const EditEvent = () => {
       text: "Are you sure you want to update this event?",
     });
 
-    if (confirm) {
-      try {
-        const updatedEvent = {
-          title: editFormData.title,
-          description: editFormData.description,
-          date: editFormData.date,
-          time: editFormData.time,
-          capacity: Number(editFormData.capacity),
-          location: editFormData.location,
-          updatedAt: format(new Date(), "yyyy-MM-dd hh:mm:ss a"),
-        };
+    if (!confirm) {
+      toast.warning("Event update canceled.");
+      navigate(`/event/${id}`);
+      return;
+    }
 
-        const res = await request.patch(`/events/${id}`, updatedEvent);
-        const updatedEvents = events.map((i) => (i.id === id ? res.data : i));
-        setEvents(updatedEvents);
-        toast.success("Event updated successfully.");
-        navigate(`/event/${id}`);
-      } catch (err) {
-        toast.error("Failed to update event. " + err.message);
-      }
+    try {
+      const updatedEvent = {
+        title: editFormData.title,
+        description: editFormData.description,
+        date: editFormData.date,
+        time: editFormData.time,
+        capacity: Number(editFormData.capacity),
+        location: editFormData.location,
+        updatedAt: format(new Date(), "yyyy-MM-dd hh:mm:ss a"),
+      };
+
+      const res = await request.patch(`/events/${id}`, updatedEvent);
+      const updatedEvents = events.map((i) => (i.id === id ? res.data : i));
+      setEvents(updatedEvents);
+      toast.success("Event updated successfully.");
+      navigate(`/event/${id}`);
+    } catch (err) {
+      toast.error("Failed to update event. " + err.message);
     }
   };
 
   return (
-    <div className="container mt-2">
+    <div className="container mt-5">
       <h2 className="mb-4 text-center">Edit Event</h2>
 
       {!event ? (

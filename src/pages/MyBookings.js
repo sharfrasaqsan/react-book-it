@@ -19,7 +19,7 @@ const MyBookings = () => {
     .filter(Boolean);
 
   return (
-    <div className="container mt-2">
+    <div className="container mt-5">
       <h2 className="mb-4 text-center">My Booked Events</h2>
 
       <div className="row row-cols-1 row-cols-md-2 g-4">

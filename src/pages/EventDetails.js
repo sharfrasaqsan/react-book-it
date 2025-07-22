@@ -26,9 +26,9 @@ const EventDetails = () => {
     : null;
 
   return (
-    <div className="container mt-2">
+    <div className="container mt-5">
       <p className="mb-3">
-        <Link to="/" className="btn btn-outline-secondary btn-sm">
+        <Link to="/events" className="btn btn-outline-secondary btn-sm">
           &larr; Back to Events
         </Link>
       </p>

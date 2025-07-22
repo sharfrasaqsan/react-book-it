@@ -82,8 +82,8 @@ const UserRegister = () => {
   };
 
   return (
-    <div className="container mt-2" style={{ maxWidth: "400px" }}>
-      <h4 className="mb-4 text-center">User Registration</h4>
+    <div className="container mt-3" style={{ maxWidth: "400px" }}>
+      <h5 className="mb-4 text-center">User Registration</h5>
       <form onSubmit={handleCreateUser}>
         <div className="mb-3">
           <label htmlFor="firstName" className="form-label">

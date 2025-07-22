@@ -11,9 +11,12 @@ import EditEvent from "./pages/EditEvent";
 import CreateEvent from "./pages/CreateEvent";
 import NotFound from "./pages/NotFound";
 import UserProfile from "./pages/UserProfile";
+import EditUser from "./pages/EditUser";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import Events from "./pages/Events";
+import PrivateRoute from "./utils/PrivateRoute";
 
 const App = () => {
   return (
@@ -22,11 +25,48 @@ const App = () => {
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/profile" element={<UserProfile />} />
-          <Route path="/my-bookings" element={<MyBookings />} />
-          <Route path="/create" element={<CreateEvent />} />
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <UserProfile />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/profile/edit/:id"
+            element={
+              <PrivateRoute>
+                <EditUser />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/my-bookings"
+            element={
+              <PrivateRoute>
+                <MyBookings />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/create"
+            element={
+              <PrivateRoute>
+                <CreateEvent />
+              </PrivateRoute>
+            }
+          />
+          <Route path="/events" element={<Events />} />
           <Route path="/event/:id" element={<EventDetails />} />
-          <Route path="/event/edit/:id" element={<EditEvent />} />
+          <Route
+            path="/event/edit/:id"
+            element={
+              <PrivateRoute>
+                <EditEvent />
+              </PrivateRoute>
+            }
+          />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="*" element={<NotFound />} />

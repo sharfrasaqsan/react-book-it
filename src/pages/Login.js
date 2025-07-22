@@ -3,11 +3,7 @@ import { useData } from "../context/DataContext";
 import request from "../api/request";
 
 const Login = () => {
-  const { users, userFormData, setUserFormData, navigate } = useData();
-
-  if (userFormData.length === 0) {
-    return <p>Loading user data...</p>;
-  }
+  const { userFormData, setUserFormData, navigate, setCurrentUser } = useData();
 
   const handleChange = (e) => {
     setUserFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -22,15 +18,6 @@ const Login = () => {
     if (userFormData.password.length < 6)
       return toast.error("Password must be at least 6 characters long.");
 
-    const user = users.find(
-      (i) =>
-        i.email === userFormData.email && i.password === userFormData.password
-    );
-
-    if (!user) {
-      return toast.error("Invalid email or password.");
-    }
-
     try {
       const res = await request.get("/users", {
         params: {
@@ -38,14 +25,19 @@ const Login = () => {
           password: userFormData.password,
         },
       });
-      if (!res.data) {
-        toast.error("User not found.");
+
+      if (res.data.length === 0) {
+        return toast.error("Invalid email or password.");
       }
+
+      const user = res.data[0];
+      setCurrentUser(user);
       setUserFormData({
         email: "",
         password: "",
       });
       toast.success("Login successful.");
+      localStorage.setItem("user", JSON.stringify(user));
       navigate("/");
     } catch (err) {
       toast.error("Failed to login. " + err.message);
