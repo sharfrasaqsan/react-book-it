@@ -5,7 +5,7 @@ const AboutSection = () => {
         <div className="row align-items-center g-5">
           <div className="col-md-6">
             <img
-              src="/images/event-networking.svg"
+              src="https://sbims.com/wp-content/uploads/2018/09/Networking-Event.jpg"
               alt="People networking at an event"
               className="img-fluid rounded shadow"
               loading="lazy"
