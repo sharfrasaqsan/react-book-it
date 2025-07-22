@@ -14,14 +14,16 @@
       "createdAt": "2025-07-12 02:30:00PM",
       "updatedAt": null,
       "role": "user",
-      "bookedEvents": ["event002"]
+      "bookedEvents": [
+        "event002"
+      ]
     },
     {
       "id": "1255",
-      "firstName": "Sharfras",
-      "lastName": "Aqsan",
+      "firstName": "Mohamed",
+      "lastName": "Sharfiras",
       "email": "aqsan@gmail.com",
-      "password": "12345678",
+      "password": "123456781234567890",
       "role": "organizer",
       "phone": "",
       "address": "",
@@ -43,7 +45,7 @@
       "time": "13:00",
       "capacity": 1,
       "createdAt": "2025-07-12 02:30:00PM",
-      "updatedAt": "2025-07-21 12:22:48 AM",
+      "updatedAt": "2025-07-21 05:03:58 PM",
       "organizerId": "user001",
       "bookedUsers": []
     },
@@ -58,7 +60,9 @@
       "createdAt": "2025-07-14 04:00:00PM",
       "updatedAt": "",
       "organizerId": "user001",
-      "bookedUsers": ["user001"]
+      "bookedUsers": [
+        "user001"
+      ]
     },
     {
       "id": "event003",

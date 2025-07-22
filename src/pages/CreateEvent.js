@@ -77,7 +77,7 @@ const CreateEvent = () => {
   };
 
   return (
-    <div className="container mt-2">
+    <div className="container mt-5">
       <h2 className="mb-4 text-center">Create New Event</h2>
 
       <form className="row g-3" onSubmit={handleCreateEvent}>

@@ -80,7 +80,7 @@ const OrganizerRegister = () => {
 
   return (
     <div className="container mt-2" style={{ maxWidth: "400px" }}>
-      <h4 className="mb-4 text-center">Organizer Registration</h4>
+      <h5 className="mb-4 text-center">Organizer Registration</h5>
       <form onSubmit={handleCreateUser}>
         <div className="mb-3">
           <label htmlFor="fisrtName" className="form-label">

@@ -15,7 +15,7 @@ export const DataProvider = ({ children }) => {
 
   // Boolean State
   const [loading, setLoading] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
   // String State
   const [createFormData, setCreateFormData] = useState({
@@ -48,17 +48,31 @@ export const DataProvider = ({ children }) => {
     country: "",
   });
 
+  const [editUserFormData, setEditUserFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    role: "",
+    phone: "",
+    address: "",
+    city: "",
+    state: "",
+    country: "",
+  });
+
   // Navigation
   const navigate = useNavigate();
 
   //   For JSON-SERVER
-  const currentUser = {
-    id: "user001",
-    firstName: "Mohamed",
-    lastName: "Sharfras",
-    email: "sharfrasaqsan@gmail.com",
-    role: "user",
-  };
+  // const currentUser = {
+  //   id: "1255",
+  //   firstName: "Mohamed",
+  //   lastName: "Sharfras",
+  //   email: "sharfrasaqsan@gmail.com",
+  //   role: "organizer",
+  // };
 
   // Fetch Event
   useEffect(() => {
@@ -136,6 +150,11 @@ export const DataProvider = ({ children }) => {
 
   // Book Event
   const handleBookEvent = async (eventId) => {
+    if (!currentUser) {
+      toast.error("Please login to book an event.");
+      return;
+    }
+
     // check if user has already booked this event in bookings
     const alreadyBooked = bookings.find(
       (i) => i.eventId === eventId && i.userId === currentUser.id
@@ -298,6 +317,7 @@ export const DataProvider = ({ children }) => {
         loading,
         setLoading,
         currentUser,
+        setCurrentUser,
         createFormData,
         setCreateFormData,
         editFormData,
@@ -307,6 +327,8 @@ export const DataProvider = ({ children }) => {
         handleCancelBooking,
         userFormData,
         setUserFormData,
+        editUserFormData,
+        setEditUserFormData,
         navigate,
       }}
     >
