@@ -2,6 +2,8 @@ import { format } from "date-fns";
 import { useData } from "../context/DataContext";
 import { toast } from "react-toastify";
 import request from "../api/request";
+import { db } from "../firebase/firebase";
+import { addDoc, collection } from "firebase/firestore";
 
 const CreateEvent = () => {
   const { events, setEvents, createFormData, setCreateFormData, navigate } =
@@ -57,9 +59,11 @@ const CreateEvent = () => {
         organizerId: null,
         bookedUsers: [],
       };
-
-      const res = await request.post("/events", newEvent);
-      const newEvents = [...events, res.data];
+      
+      const docRef = await addDoc(collection(db, "events"), newEvent);
+      if (!docRef) return toast.error("Failed to create event.");
+      const eventWithId = { id: docRef.id, ...newEvent };
+      const newEvents = [...events, eventWithId];
       setEvents(newEvents);
       setCreateFormData({
         title: "",
@@ -71,13 +75,14 @@ const CreateEvent = () => {
       });
       toast.success("Event created successfully.");
       navigate("/");
+      console.log("DB:", db);
     } catch (err) {
       toast.error("Failed to create event. " + err.message);
     }
   };
 
   return (
-    <div className="container mt-5">
+    <div className="container mt-5 mb-5">
       <h2 className="mb-4 text-center">Create New Event</h2>
 
       <form className="row g-3" onSubmit={handleCreateEvent}>

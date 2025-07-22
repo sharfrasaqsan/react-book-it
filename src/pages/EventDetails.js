@@ -26,7 +26,7 @@ const EventDetails = () => {
     : null;
 
   return (
-    <div className="container mt-5">
+    <div className="container mt-5 mb-5">
       <p className="mb-3">
         <Link to="/events" className="btn btn-outline-secondary btn-sm">
           &larr; Back to Events
@@ -34,7 +34,7 @@ const EventDetails = () => {
       </p>
 
       <div className="card shadow p-4">
-        {event.bookedUsers?.includes(currentUser.id) && (
+        {event.bookedUsers?.includes(currentUser?.id) && (
           <span className="badge bg-warning text-dark">
             You have already booked this event!
           </span>
@@ -42,10 +42,12 @@ const EventDetails = () => {
 
         <h2 className="mb-3">{event.title}</h2>
 
-        {currentUser.role === "organizer" && (
+        {currentUser?.role === "organizer" && (
           <>
             <p>Created at: {event.createdAt}</p>
-            {event.updatedAt.length > 0 && <p>Updated at: {event.updatedAt}</p>}
+            {event.updatedAt?.length > 0 && (
+              <p>Updated at: {event.updatedAt}</p>
+            )}
           </>
         )}
 
@@ -77,7 +79,7 @@ const EventDetails = () => {
         </p>
 
         <div className="d-flex flex-wrap gap-2">
-          {!event.bookedUsers?.includes(currentUser.id) && (
+          {!event.bookedUsers?.includes(currentUser?.id) && (
             <button
               type="button"
               className="btn btn-primary"
@@ -91,7 +93,7 @@ const EventDetails = () => {
             </button>
           )}
 
-          {event.bookedUsers?.includes(currentUser.id) && (
+          {event.bookedUsers?.includes(currentUser?.id) && (
             <button
               type="button"
               className="btn btn-outline-warning"
@@ -101,7 +103,7 @@ const EventDetails = () => {
             </button>
           )}
 
-          {currentUser.role === "organizer" && (
+          {currentUser?.role === "organizer" && (
             <>
               <Link
                 to={`/event/edit/${event.id}`}

@@ -1,20 +1,48 @@
 const Partners = () => {
   const partners = [
     {
-      src: "https://upload.wikimedia.org/wikipedia/commons/a/ab/Apple-logo.png",
-      alt: "Apple",
+      src: "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg",
+      alt: "React",
     },
     {
-      src: "https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg",
-      alt: "Microsoft",
+      src: "https://upload.wikimedia.org/wikipedia/commons/d/db/Npm-logo.svg",
+      alt: "npm",
     },
     {
-      src: "https://upload.wikimedia.org/wikipedia/commons/0/08/Google_Logo.svg",
-      alt: "Google",
+      src: "https://upload.wikimedia.org/wikipedia/commons/d/d9/Node.js_logo.svg",
+      alt: "Node.js",
     },
     {
-      src: "https://upload.wikimedia.org/wikipedia/commons/f/fa/LinkedIn_logo_initials.png",
-      alt: "LinkedIn",
+      src: "https://upload.wikimedia.org/wikipedia/commons/4/4c/Typescript_logo_2020.svg",
+      alt: "TypeScript",
+    },
+    {
+      src: "https://raw.githubusercontent.com/vercel/vercel/main/packages/frameworks/logos/next.svg",
+      alt: "Next.js",
+    },
+    {
+      src: "https://upload.wikimedia.org/wikipedia/commons/b/b2/Bootstrap_logo.svg",
+      alt: "Bootstrap",
+    },
+    {
+      src: "https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png",
+      alt: "JavaScript",
+    },
+    {
+      src: "https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg",
+      alt: "Figma",
+    },
+    {
+      src: "https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg",
+      alt: "Python",
+    },
+    {
+      src: "https://webimages.mongodb.com/_com_assets/cms/mongodb_logo1-76twgcu2dm.png",
+      alt: "MongoDB",
+    },
+    {
+      src: "https://upload.wikimedia.org/wikipedia/commons/8/87/Sql_data_base_with_logo.png",
+      alt: "SQL",
     },
   ];
 
