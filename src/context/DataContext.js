@@ -4,6 +4,8 @@ import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { confirmDialog } from "../utils/confirmDialog";
+import { collection, deleteDoc, getDocs } from "firebase/firestore";
+import { db } from "../firebase/firebase";
 
 const DataContext = createContext();
 
@@ -65,23 +67,15 @@ export const DataProvider = ({ children }) => {
   // Navigation
   const navigate = useNavigate();
 
-  //   For JSON-SERVER
-  // const currentUser = {
-  //   id: "1255",
-  //   firstName: "Mohamed",
-  //   lastName: "Sharfras",
-  //   email: "sharfrasaqsan@gmail.com",
-  //   role: "organizer",
-  // };
-
   // Fetch Event
   useEffect(() => {
     const fetchEvents = async () => {
       setLoading(true);
       try {
-        const res = await request.get("/events");
-        if (!res.data) return;
-        setEvents(res.data);
+        const docRef = await getDocs(collection(db, "events"));
+        const data = docRef.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+        if (!data) return;
+        setEvents(data);
       } catch (err) {
         toast.error("Failed to fetch Events. " + err.message);
       } finally {
@@ -97,9 +91,10 @@ export const DataProvider = ({ children }) => {
     const fetchingUsers = async () => {
       setLoading(true);
       try {
-        const res = await request.get("/users");
-        if (!res.data) return;
-        setUsers(res.data);
+        const docRef = await getDocs(collection(db, "users"));
+        const data = docRef.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+        if (!data) return;
+        setUsers(data);
       } catch (err) {
         toast.error("Failed to fetch Users. " + err.message);
       } finally {
@@ -115,9 +110,10 @@ export const DataProvider = ({ children }) => {
     const fetchingBookings = async () => {
       setLoading(true);
       try {
-        const res = await request.get("/bookings");
-        if (!res.data) return;
-        setBookings(res.data);
+        const docRef = await getDocs(collection(db, "bookings"));
+        const data = docRef.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+        if (!data) return;
+        setBookings(data);
       } catch (err) {
         toast.error("Failed to fetch Bookings. " + err.message);
       } finally {
@@ -129,7 +125,7 @@ export const DataProvider = ({ children }) => {
   }, []);
 
   // Delete Event
-  const handleDeleteEvent = async (id) => {
+  const handleDeleteEvent = async (eventId) => {
     const confirm = await confirmDialog({
       title: "Delete the event",
       text: "Are you sure you want to delete this event?",
@@ -137,9 +133,8 @@ export const DataProvider = ({ children }) => {
 
     if (confirm) {
       try {
-        await request.delete(`/events/${id}`);
-        if (!events) return;
-        setEvents((prev) => prev.filter((i) => i.id !== id));
+        await deleteDoc(collection(db, "events"), { eventId });
+        setEvents((prev) => prev.filter((i) => i.id !== eventId));
         toast.success("Event deleted successfully.");
         navigate("/");
       } catch (err) {

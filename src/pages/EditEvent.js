@@ -5,6 +5,8 @@ import { format } from "date-fns";
 import { toast } from "react-toastify";
 import { confirmDialog } from "../utils/confirmDialog";
 import request from "../api/request";
+import { collection, updateDoc } from "firebase/firestore";
+import { db } from "../firebase/firebase";
 
 const EditEvent = () => {
   const { events, setEvents, editFormData, setEditFormData, navigate } =
@@ -86,8 +88,18 @@ const EditEvent = () => {
         updatedAt: format(new Date(), "yyyy-MM-dd hh:mm:ss a"),
       };
 
-      const res = await request.patch(`/events/${id}`, updatedEvent);
-      const updatedEvents = events.map((i) => (i.id === id ? res.data : i));
+      const docRef = await updateDoc(
+        collection(db, "events", id),
+        updatedEvent
+      );
+
+      if (!docRef) {
+        toast.error("Failed to update event.");
+      }
+
+      const updatedEvents = events.map((i) =>
+        i.id === id ? { updatedEvent } : i
+      );
       setEvents(updatedEvents);
       toast.success("Event updated successfully.");
       navigate(`/event/${id}`);
@@ -97,7 +109,7 @@ const EditEvent = () => {
   };
 
   return (
-    <div className="container mt-5">
+    <div className="container mt-5 mb-5">
       <h2 className="mb-4 text-center">Edit Event</h2>
 
       {!event ? (
