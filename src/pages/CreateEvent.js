@@ -80,7 +80,7 @@ const CreateEvent = () => {
       });
 
       toast.success("Event created successfully.");
-      navigate("/");
+      navigate("/events");
     } catch (err) {
       toast.error("Failed to create event. " + err.message);
     } finally {

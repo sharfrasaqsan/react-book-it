@@ -99,7 +99,7 @@ const UserRegister = () => {
       });
 
       toast.success("User account created successfully.");
-      navigate("/login");
+      navigate("/");
     } catch (err) {
       toast.error("Failed to create user. " + err.message);
     } finally {
