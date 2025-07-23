@@ -71,15 +71,27 @@ const Header = () => {
               </li>
 
               {isOrganizer && (
-                <li className="nav-item">
-                  <NavLink
-                    to="/create"
-                    className="nav-link"
-                    onClick={closeMenu}
-                  >
-                    Create Event
-                  </NavLink>
-                </li>
+                <>
+                  <li className="nav-item">
+                    <NavLink
+                      to="/create"
+                      className="nav-link"
+                      onClick={closeMenu}
+                    >
+                      Create Event
+                    </NavLink>
+                  </li>
+
+                  <li className="nav-item">
+                    <NavLink
+                      to="/my-events"
+                      className="nav-link"
+                      onClick={closeMenu}
+                    >
+                      My Events
+                    </NavLink>
+                  </li>
+                </>
               )}
             </>
           )}

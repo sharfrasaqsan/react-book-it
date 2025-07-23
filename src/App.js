@@ -17,6 +17,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Events from "./pages/Events";
 import PrivateRoute from "./utils/PrivateRoute";
+import MyEvents from "./pages/MyEvents";
 
 const App = () => {
   return (
@@ -67,6 +68,7 @@ const App = () => {
               </PrivateRoute>
             }
           />
+          <Route path="/my-events" element={<MyEvents />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="*" element={<NotFound />} />
