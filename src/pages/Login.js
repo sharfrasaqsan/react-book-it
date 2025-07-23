@@ -4,9 +4,11 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { getDoc, doc } from "firebase/firestore";
 import { auth, db } from "../firebase/firebase";
 import { useData } from "../context/DataContext";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
-  const { navigate, setCurrentUser, setLoading } = useData();
+  const { navigate, setLoading } = useData();
+  const { setCurrentUser } = useAuth();
 
   const [loginData, setLoginData] = useState({
     email: "",
@@ -45,15 +47,14 @@ const Login = () => {
       const user = userCredential.user;
 
       // Fetch Firestore user data
-      const userDocRef = doc(db, "users", user.uid);
-      const userSnapshot = await getDoc(userDocRef);
+      const userDocRef = await getDoc(doc(db, "users", user.uid));
 
-      if (!userSnapshot.exists()) {
+      if (!userDocRef.exists()) {
         toast.error("User data not found in Firestore.");
         return;
       }
 
-      const userData = userSnapshot.data();
+      const userData = userDocRef.data();
       setCurrentUser(userData);
       toast.success("Login successful.");
       setLoginData({ email: "", password: "" });
@@ -62,7 +63,6 @@ const Login = () => {
         navigate("/");
       }, 300);
     } catch (err) {
-      console.error("Login error:", err);
       switch (err.code) {
         case "auth/user-not-found":
           toast.error("No user found with this email.");

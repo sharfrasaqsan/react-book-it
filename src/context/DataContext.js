@@ -12,10 +12,12 @@ import {
   doc,
 } from "firebase/firestore";
 import { db } from "../firebase/firebase";
+import { useAuth } from "./AuthContext";
 
 const DataContext = createContext();
 
 export const DataProvider = ({ children }) => {
+  const { currentUser, setCurrentUser } = useAuth();
   // Array State
   const [events, setEvents] = useState([]);
   const [users, setUsers] = useState([]);
@@ -23,7 +25,6 @@ export const DataProvider = ({ children }) => {
 
   // Boolean State
   const [loading, setLoading] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
 
   // Form State
   const [createFormData, setCreateFormData] = useState({
