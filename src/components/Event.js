@@ -8,7 +8,7 @@ const Event = ({ event }) => {
   const { handleBookEvent } = useData();
   const { currentUser } = useAuth();
 
-  if (!currentUser || !event) return <p>Loading...</p>;
+  if (!event) return <p>Loading...</p>;
 
   const isBooked = currentUser?.bookedEvents?.includes(event.id);
 
