@@ -1,6 +1,9 @@
 const AboutSection = () => {
   return (
-    <section className="bg-white py-5" aria-labelledby="about-heading">
+    <section
+      className="py-5 bg-light border-top"
+      aria-labelledby="about-heading"
+    >
       <div className="container">
         <div className="row align-items-center g-5">
           <div className="col-md-6">

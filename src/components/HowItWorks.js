@@ -21,7 +21,7 @@ const HowItWorks = () => {
 
   return (
     <section
-      className="bg-light py-5 border-top"
+      className="bg-white py-5 border-top mb-3"
       aria-labelledby="how-it-works-heading"
     >
       <div className="container">

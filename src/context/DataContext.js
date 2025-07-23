@@ -1,10 +1,16 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import request from "../api/request";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { confirmDialog } from "../utils/confirmDialog";
-import { collection, deleteDoc, getDocs } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  getDocs,
+  updateDoc,
+  doc,
+} from "firebase/firestore";
 import { db } from "../firebase/firebase";
 
 const DataContext = createContext();
@@ -19,7 +25,7 @@ export const DataProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
 
-  // String State
+  // Form State
   const [createFormData, setCreateFormData] = useState({
     title: "",
     description: "",
@@ -36,6 +42,7 @@ export const DataProvider = ({ children }) => {
     location: "",
     capacity: "",
   });
+
   const [userFormData, setUserFormData] = useState({
     firstName: "",
     lastName: "",
@@ -67,14 +74,16 @@ export const DataProvider = ({ children }) => {
   // Navigation
   const navigate = useNavigate();
 
-  // Fetch Event
+  // Fetch Events
   useEffect(() => {
     const fetchEvents = async () => {
       setLoading(true);
       try {
-        const docRef = await getDocs(collection(db, "events"));
-        const data = docRef.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-        if (!data) return;
+        const snapshot = await getDocs(collection(db, "events"));
+        const data = snapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
         setEvents(data);
       } catch (err) {
         toast.error("Failed to fetch Events. " + err.message);
@@ -82,18 +91,19 @@ export const DataProvider = ({ children }) => {
         setLoading(false);
       }
     };
-
     fetchEvents();
   }, []);
 
   // Fetch Users
   useEffect(() => {
-    const fetchingUsers = async () => {
+    const fetchUsers = async () => {
       setLoading(true);
       try {
-        const docRef = await getDocs(collection(db, "users"));
-        const data = docRef.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-        if (!data) return;
+        const snapshot = await getDocs(collection(db, "users"));
+        const data = snapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
         setUsers(data);
       } catch (err) {
         toast.error("Failed to fetch Users. " + err.message);
@@ -101,18 +111,19 @@ export const DataProvider = ({ children }) => {
         setLoading(false);
       }
     };
-
-    fetchingUsers();
+    fetchUsers();
   }, []);
 
   // Fetch Bookings
   useEffect(() => {
-    const fetchingBookings = async () => {
+    const fetchBookings = async () => {
       setLoading(true);
       try {
-        const docRef = await getDocs(collection(db, "bookings"));
-        const data = docRef.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-        if (!data) return;
+        const snapshot = await getDocs(collection(db, "bookings"));
+        const data = snapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
         setBookings(data);
       } catch (err) {
         toast.error("Failed to fetch Bookings. " + err.message);
@@ -120,8 +131,7 @@ export const DataProvider = ({ children }) => {
         setLoading(false);
       }
     };
-
-    fetchingBookings();
+    fetchBookings();
   }, []);
 
   // Delete Event
@@ -131,15 +141,15 @@ export const DataProvider = ({ children }) => {
       text: "Are you sure you want to delete this event?",
     });
 
-    if (confirm) {
-      try {
-        await deleteDoc(collection(db, "events"), { eventId });
-        setEvents((prev) => prev.filter((i) => i.id !== eventId));
-        toast.success("Event deleted successfully.");
-        navigate("/");
-      } catch (err) {
-        toast.error("Failed to delete event. " + err.message);
-      }
+    if (!confirm) return;
+
+    try {
+      await deleteDoc(doc(db, "events", eventId));
+      setEvents((prev) => prev.filter((event) => event.id !== eventId));
+      toast.success("Event deleted successfully.");
+      navigate(-1);
+    } catch (err) {
+      toast.error("Failed to delete event. " + err.message);
     }
   };
 
@@ -150,20 +160,22 @@ export const DataProvider = ({ children }) => {
       return;
     }
 
-    // check if user has already booked this event in bookings
+    // Check if user already booked event in bookings
     const alreadyBooked = bookings.find(
-      (i) => i.eventId === eventId && i.userId === currentUser.id
+      (booking) =>
+        booking.eventId === eventId && booking.userId === currentUser.id
     );
 
-    // check if user has already booked this event in events
+    // Check if user is already in event's bookedUsers list
     const alreadyBookedEvent = events.some(
-      // some() returns ture or false
-      (i) => i.id === eventId && i.bookedUsers?.includes(currentUser.id)
+      (event) =>
+        event.id === eventId && event.bookedUsers?.includes(currentUser.id)
     );
 
-    // check if user has already booked this event in users
+    // Check if user's bookedEvents includes this event
     const alreadyBookedUser = users.some(
-      (i) => i.id === currentUser.id && i.bookedEvents?.includes(eventId)
+      (user) =>
+        user.id === currentUser.id && user.bookedEvents?.includes(eventId)
     );
 
     if (alreadyBooked || alreadyBookedEvent || alreadyBookedUser) {
@@ -171,8 +183,12 @@ export const DataProvider = ({ children }) => {
       return;
     }
 
-    const event = events.find((i) => i.id === eventId);
-    if (event.capacity === 0) {
+    const event = events.find((e) => e.id === eventId);
+    if (!event) {
+      toast.error("Event not found.");
+      return;
+    }
+    if (event.capacity <= 0) {
       toast.error("This event is fully booked.");
       return;
     }
@@ -180,51 +196,62 @@ export const DataProvider = ({ children }) => {
     try {
       const newBooking = {
         userId: currentUser.id,
-        eventId: eventId,
+        eventId,
         bookedAt: format(new Date(), "yyyy-MM-dd hh:mm:ss a"),
       };
 
-      const res = await request.post("/bookings", newBooking);
-      const newBBookings = [...bookings, res.data];
-      setBookings(newBBookings);
+      // Add new booking doc
+      const bookingDocRef = await addDoc(
+        collection(db, "bookings"),
+        newBooking
+      );
+      const newBookingWithId = { id: bookingDocRef.id, ...newBooking };
+      setBookings((prev) => [...prev, newBookingWithId]);
 
-      // check if event has booked users or not to update the event
-      const event = events.find((event) => event.id === eventId);
+      // Update event bookedUsers
       const updatedBookedUsers = event.bookedUsers
         ? [...event.bookedUsers, currentUser.id]
-        : [...event.bookedUsers];
-
-      // update event booked users
-      const eventRes = await request.patch(`/events/${eventId}`, {
+        : [currentUser.id];
+      await updateDoc(doc(db, "events", eventId), {
         bookedUsers: updatedBookedUsers,
+        capacity: event.capacity - 1,
       });
-      const updatedEvents = events.map((i) =>
-        i.id === eventId ? eventRes.data : i
+
+      // Update local events state
+      setEvents((prev) =>
+        prev.map((e) =>
+          e.id === eventId
+            ? {
+                ...e,
+                bookedUsers: updatedBookedUsers,
+                capacity: e.capacity - 1,
+              }
+            : e
+        )
       );
-      setEvents(updatedEvents);
 
-      // check if user has booked events or not to update the user
-      const user = users.find((i) => i.id === currentUser.id);
-      const updatedBookedEvents = user.bookedEvents
-        ? [...user.bookedEvents, eventId]
-        : [...user.bookedEvents];
+      // Update user's bookedEvents
+      const userToUpdate = users.find((user) => user.id === currentUser.id);
+      if (!userToUpdate) {
+        toast.error("User not found.");
+        return;
+      }
 
-      // update user booked events
-      const userRes = await request.patch(`/users/${currentUser.id}`, {
+      const updatedBookedEvents = userToUpdate.bookedEvents
+        ? [...userToUpdate.bookedEvents, eventId]
+        : [eventId];
+
+      await updateDoc(doc(db, "users", currentUser.id), {
         bookedEvents: updatedBookedEvents,
       });
-      const updatedUsers = users.map((i) =>
-        i.id === currentUser.id ? userRes.data : i
-      );
-      setUsers(updatedUsers);
 
-      // update event capacity
-      const eventCapacity = event.capacity - 1;
-      const eventCapacityRes = await request.patch(`/events/${eventId}`, {
-        capacity: eventCapacity,
-      });
-      setEvents(
-        events.map((i) => (i.id === eventId ? eventCapacityRes.data : i))
+      // Update local users state
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === currentUser.id
+            ? { ...u, bookedEvents: updatedBookedEvents }
+            : u
+        )
       );
 
       toast.success("Event booked successfully.");
@@ -241,62 +268,77 @@ export const DataProvider = ({ children }) => {
       text: "Are you sure you want to cancel this booking?",
     });
 
-    if (confirm) {
-      try {
-        // Find the booking record
-        const booking = bookings.find(
-          (i) => i.userId === currentUser.id && i.eventId === eventId
-        );
+    if (!confirm) return;
 
-        if (!bookings.length) {
-          toast.error("You have not booked any events.");
-          return;
-        }
+    try {
+      const booking = bookings.find(
+        (b) => b.userId === currentUser?.id && b.eventId === eventId
+      );
 
-        // Remove booking from bookings list
-        await request.delete(`/bookings/${booking.id}`);
-        setBookings(bookings.filter((i) => i.id !== booking.id));
-
-        // Update event's bookedUsers list
-        const event = events.find((i) => i.id === eventId);
-        const updatedBookedUsers = event.bookedUsers?.filter(
-          (userId) => userId !== currentUser.id
-        );
-
-        const eventRes = await request.patch(`/events/${eventId}`, {
-          bookedUsers: updatedBookedUsers,
-        });
-
-        setEvents(events.map((i) => (i.id === eventId ? eventRes.data : i)));
-
-        // Update user's bookedEvents list
-        const user = users.find((i) => i.id === currentUser.id);
-        const updatedBookedEvents = user.bookedEvents?.filter(
-          (id) => id !== eventId
-        );
-
-        const userRes = await request.patch(`/users/${currentUser.id}`, {
-          bookedEvents: updatedBookedEvents,
-        });
-
-        setUsers(
-          users.map((i) => (i.id === currentUser.id ? userRes.data : i))
-        );
-
-        // Update event capacity
-        const eventCapacity = event.capacity + 1;
-        const eventCapacityRes = await request.patch(`/events/${eventId}`, {
-          capacity: eventCapacity,
-        });
-        setEvents(
-          events.map((i) => (i.id === eventId ? eventCapacityRes.data : i))
-        );
-
-        toast.success("Booking cancelled successfully.");
-        navigate("/");
-      } catch (err) {
-        toast.error("Failed to cancel booking. " + err.message);
+      if (!booking) {
+        toast.error("You have not booked this event.");
+        return;
       }
+
+      // Delete booking document
+      await deleteDoc(doc(db, "bookings", booking.id));
+      setBookings((prev) => prev.filter((b) => b.id !== booking.id));
+
+      // Update event's bookedUsers list
+      const event = events.find((e) => e.id === eventId);
+      if (!event) {
+        toast.error("Event not found.");
+        return;
+      }
+
+      const updatedBookedUsers = event.bookedUsers?.filter(
+        (userId) => userId !== currentUser.id
+      );
+
+      await updateDoc(doc(db, "events", eventId), {
+        bookedUsers: updatedBookedUsers,
+        capacity: event.capacity + 1,
+      });
+
+      setEvents((prev) =>
+        prev.map((e) =>
+          e.id === eventId
+            ? {
+                ...e,
+                bookedUsers: updatedBookedUsers,
+                capacity: e.capacity + 1,
+              }
+            : e
+        )
+      );
+
+      // Update user's bookedEvents list
+      const userToUpdate = users.find((u) => u.id === currentUser.id);
+      if (!userToUpdate) {
+        toast.error("User not found.");
+        return;
+      }
+
+      const updatedBookedEvents = userToUpdate.bookedEvents?.filter(
+        (id) => id !== eventId
+      );
+
+      await updateDoc(doc(db, "users", currentUser.id), {
+        bookedEvents: updatedBookedEvents,
+      });
+
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === currentUser.id
+            ? { ...u, bookedEvents: updatedBookedEvents }
+            : u
+        )
+      );
+
+      toast.success("Booking cancelled successfully.");
+      navigate(-1);
+    } catch (err) {
+      toast.error("Failed to cancel booking. " + err.message);
     }
   };
 
@@ -332,6 +374,4 @@ export const DataProvider = ({ children }) => {
   );
 };
 
-export const useData = () => {
-  return useContext(DataContext);
-};
+export const useData = () => useContext(DataContext);

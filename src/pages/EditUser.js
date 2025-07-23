@@ -1,15 +1,18 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useData } from "../context/DataContext";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import request from "../api/request";
 import { confirmDialog } from "../utils/confirmDialog";
+import { doc, updateDoc } from "firebase/firestore";
+import { db, auth } from "../firebase/firebase";
+import { updatePassword } from "firebase/auth";
 
 const EditUser = () => {
   const { editUserFormData, setEditUserFormData, users, setUsers, navigate } =
     useData();
 
   const { id } = useParams();
+  const [loading, setLoading] = useState(false);
 
   const user = users.find((i) => i.id === id);
 
@@ -18,12 +21,12 @@ const EditUser = () => {
       setEditUserFormData({
         firstName: user.firstName,
         lastName: user.lastName,
-        password: user.password,
-        phone: user.phone,
-        address: user.address,
-        city: user.city,
-        state: user.state,
-        country: user.country,
+        password: "", // start empty, optional to change
+        phone: user.phone || "",
+        address: user.address || "",
+        city: user.city || "",
+        state: user.state || "",
+        country: user.country || "",
       });
     }
   }, [user, setEditUserFormData]);
@@ -45,7 +48,8 @@ const EditUser = () => {
       return toast.error("Please enter both first name and last name.");
     }
 
-    if (editUserFormData.password.length < 6) {
+    // Password change is optional
+    if (editUserFormData.password && editUserFormData.password.length < 6) {
       return toast.error("Password must be at least 6 characters long.");
     }
 
@@ -60,22 +64,46 @@ const EditUser = () => {
       return;
     }
 
+    setLoading(true);
     try {
-      const updatedUser = {
-        ...editUserFormData,
-      };
-      const res = await request.patch(`/users/${userId}`, updatedUser);
-      const newUsersList = users.map((i) => (i.id === userId ? res.data : i));
+      // Separate password from other fields
+      const { password, ...userData } = editUserFormData;
+
+      // Update Firestore user document (excluding password)
+      const docRef = doc(db, "users", userId);
+      await updateDoc(docRef, userData);
+
+      // If password entered, update it securely via Firebase Auth
+      if (password) {
+        // Get current Firebase Auth user
+        const currentUser = auth.currentUser;
+        if (currentUser && currentUser.uid === userId) {
+          await updatePassword(currentUser, password);
+          toast.success("Password updated successfully.");
+        } else {
+          toast.warning(
+            "Password update skipped: you must be logged in as this user."
+          );
+        }
+      }
+
+      // Update local users list state
+      const newUsersList = users.map((i) =>
+        i.id === userId ? { ...i, ...userData } : i
+      );
       setUsers(newUsersList);
+
       toast.success("User updated successfully.");
       navigate("/profile");
     } catch (err) {
       toast.error("Failed to update user. " + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="container mt-5">
+    <div className="container mt-5 mb-5" style={{ maxWidth: "500px" }}>
       <h2 className="text-center mb-4">Edit Profile</h2>
       <div className="card shadow border-0 p-4 mx-auto">
         <form
@@ -109,7 +137,7 @@ const EditUser = () => {
           />
 
           <label htmlFor="password" className="form-label">
-            Password
+            Password (leave blank to keep current)
           </label>
           <input
             type="password"
@@ -117,7 +145,7 @@ const EditUser = () => {
             name="password"
             value={editUserFormData.password}
             onChange={handleChange}
-            required
+            placeholder="New password (optional)"
           />
 
           <label htmlFor="phone" className="form-label">
@@ -175,8 +203,23 @@ const EditUser = () => {
             onChange={handleChange}
           />
 
-          <button type="submit" className="btn btn-primary w-100 mb-2">
-            Save Changes
+          <button
+            type="submit"
+            className="btn btn-primary w-100 mb-2"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <span
+                  className="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                Saving...
+              </>
+            ) : (
+              "Save Changes"
+            )}
           </button>
         </form>
       </div>

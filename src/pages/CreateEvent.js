@@ -1,17 +1,23 @@
 import { format } from "date-fns";
 import { useData } from "../context/DataContext";
 import { toast } from "react-toastify";
-import request from "../api/request";
 import { db } from "../firebase/firebase";
 import { addDoc, collection } from "firebase/firestore";
+import { useState } from "react";
 
 const CreateEvent = () => {
-  const { events, setEvents, createFormData, setCreateFormData, navigate } =
-    useData();
+  const {
+    events,
+    setEvents,
+    createFormData,
+    setCreateFormData,
+    navigate,
+    currentUser,
+  } = useData();
+  const [loading, setLoading] = useState(false);
 
   if (!createFormData) return <p>Loading...</p>;
 
-  // Create Event
   const handleCreateEvent = async (e) => {
     e.preventDefault();
 
@@ -24,29 +30,27 @@ const CreateEvent = () => {
       return toast.error("Please fill in all the fields.");
     }
 
-    // Check if date and time are valid
-    const now = new Date();
     if (!createFormData.date || !createFormData.time) {
       return toast.error("Please select both date and time.");
     }
-    // Combine date and time like: "2025-07-20T14:30"
+
     const eventDateTimeString = `${createFormData.date}T${createFormData.time}`;
-    // Convert to a Date object
     const eventDateTime = new Date(eventDateTimeString);
-    // Check if it's a valid date
     if (isNaN(eventDateTime.getTime())) {
       return toast.error("Invalid date and time.");
     }
-    // Compare with current date and time
+
+    const now = new Date();
     if (eventDateTime < now) {
       return toast.error("Event date and time must be in the future.");
     }
 
-    // Check if capacity is greater than 0
-    if (createFormData.capacity <= 0) {
-      return toast.error("Capacity must be greater than 0.");
+    const capacityNum = Number(createFormData.capacity);
+    if (isNaN(capacityNum) || capacityNum <= 0) {
+      return toast.error("Capacity must be a number greater than 0.");
     }
 
+    setLoading(true);
     try {
       const newEvent = {
         title: createFormData.title,
@@ -54,17 +58,18 @@ const CreateEvent = () => {
         location: createFormData.location,
         date: createFormData.date,
         time: createFormData.time,
-        capacity: createFormData.capacity,
-        createdAt: format(new Date(), "yyyy-MM-dd hh:mm:ss a"),
-        organizerId: null,
+        capacity: capacityNum,
+        createdAt: format(new Date(), "yyyy-MM-dd HH:mm:ss a"),
+        organizerId: currentUser?.id || null, // dynamically set organizer if available
         bookedUsers: [],
       };
-      
+
       const docRef = await addDoc(collection(db, "events"), newEvent);
-      if (!docRef) return toast.error("Failed to create event.");
+      if (!docRef) throw new Error("Failed to create event.");
+
       const eventWithId = { id: docRef.id, ...newEvent };
-      const newEvents = [...events, eventWithId];
-      setEvents(newEvents);
+      setEvents([...events, eventWithId]);
+
       setCreateFormData({
         title: "",
         description: "",
@@ -73,11 +78,13 @@ const CreateEvent = () => {
         location: "",
         capacity: "",
       });
+
       toast.success("Event created successfully.");
       navigate("/");
-      console.log("DB:", db);
     } catch (err) {
       toast.error("Failed to create event. " + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -189,8 +196,23 @@ const CreateEvent = () => {
         </div>
 
         <div className="col-12 text-end">
-          <button type="submit" className="btn btn-primary mt-3">
-            Create Event
+          <button
+            type="submit"
+            className="btn btn-primary mt-3"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <span
+                  className="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                Creating...
+              </>
+            ) : (
+              "Create Event"
+            )}
           </button>
         </div>
       </form>

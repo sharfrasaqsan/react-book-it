@@ -5,7 +5,7 @@ const CTASection = () => {
     <section
       className="py-5 text-center text-white"
       style={{
-        background: "linear-gradient(135deg, #343a40 0%, #212529 100%)",
+        background: "linear-gradient(135deg, #4085c9ff 0%, #071f36ff 100%)",
       }}
     >
       <div className="container px-3 px-md-5">
