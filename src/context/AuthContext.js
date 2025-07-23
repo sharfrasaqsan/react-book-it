@@ -13,15 +13,13 @@ export const AuthProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
-          const userDocRef = doc(db, "users", user.uid);
-          const snapshot = await getDoc(userDocRef);
-          if (snapshot.exists()) {
-            setCurrentUser({ id: user.uid, ...snapshot.data() });
+          const userDocRef = await getDoc(doc(db, "users", user.uid));
+          if (userDocRef.exists()) {
+            setCurrentUser({ id: user.uid, ...userDocRef.data() });
           } else {
             setCurrentUser(null);
           }
         } catch (error) {
-          console.error("AuthContext error:", error);
           setCurrentUser(null);
         }
       } else {

@@ -85,8 +85,7 @@ const EditEvent = () => {
         updatedAt: format(new Date(), "yyyy-MM-dd HH:mm:ss a"),
       };
 
-      const docRef = doc(db, "events", id);
-      await updateDoc(docRef, updatedEvent);
+      await updateDoc(doc(db, "events", id), updatedEvent);
 
       // Update local state
       const updatedEvents = events.map((i) =>
