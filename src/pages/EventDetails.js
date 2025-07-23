@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import { SlCalender } from "react-icons/sl";
 import { FaLocationDot } from "react-icons/fa6";
+import { isEventClosed } from "../utils/EventExpired";
 
 const EventDetails = () => {
   const {
@@ -24,6 +25,8 @@ const EventDetails = () => {
   const eventOrganizer = event.organizerId
     ? users.find((i) => i.id === event.organizerId)
     : null;
+
+  const isClosed = isEventClosed(event.date, event.time);
 
   return (
     <div className="container mt-5 mb-5">
@@ -62,7 +65,9 @@ const EventDetails = () => {
         </div>
 
         <div className="mb-3">
-          {event.capacity === 0 ? (
+          {isClosed ? (
+            <span className="badge bg-danger">Event is closed!</span>
+          ) : event.capacity === 0 ? (
             <span className="badge bg-danger">Booking full!</span>
           ) : (
             <span className="badge bg-success">
@@ -79,18 +84,29 @@ const EventDetails = () => {
         </p>
 
         <div className="d-flex flex-wrap gap-2">
-          {!event.bookedUsers?.includes(currentUser?.id) && (
+          {isClosed ? (
             <button
               type="button"
               className="btn btn-primary"
-              onClick={() => handleBookEvent(event.id)}
-              disabled={event.capacity === 0}
-              title={
-                event.capacity === 0 ? "This event is full right now!" : ""
-              }
+              disabled
+              title={"This event is closed!"}
             >
               Book Now
             </button>
+          ) : (
+            !event.bookedUsers?.includes(currentUser?.id) && (
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => handleBookEvent(event.id)}
+                disabled={event.capacity === 0}
+                title={
+                  event.capacity === 0 ? "This event is full right now!" : ""
+                }
+              >
+                Book Now
+              </button>
+            )
           )}
 
           {event.bookedUsers?.includes(currentUser?.id) && (
