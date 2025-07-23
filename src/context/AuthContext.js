@@ -1,26 +1,48 @@
-import { createContext, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../firebase/firebase";
-import { useData } from "./DataContext";
+import { auth, db } from "../firebase/firebase";
+import { doc, getDoc } from "firebase/firestore";
 
-const AuthContext = createContext;
+const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const { users, setCurrentUser, setLoading } = useData();
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const matchedUser = users.find((i) => i.email === user.email);
-        setCurrentUser(matchedUser);
+        try {
+          const userDocRef = doc(db, "users", user.uid);
+          const snapshot = await getDoc(userDocRef);
+          if (snapshot.exists()) {
+            setCurrentUser({ id: user.uid, ...snapshot.data() });
+          } else {
+            setCurrentUser(null);
+          }
+        } catch (error) {
+          console.error("AuthContext error:", error);
+          setCurrentUser(null);
+        }
       } else {
         setCurrentUser(null);
       }
-
       setLoading(false);
-      return () => unsubscribe();
     });
-  }, [users, setCurrentUser, setLoading]);
-  return <AuthContext.Provider value={{}}>{children}</AuthContext.Provider>;
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    // You can return a spinner or null while loading auth state
+    return null;
+  }
+
+  return (
+    <AuthContext.Provider value={{ currentUser, setCurrentUser }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
+
+export const useAuth = () => useContext(AuthContext);

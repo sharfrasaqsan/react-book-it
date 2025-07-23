@@ -1,51 +1,89 @@
+import { useState } from "react";
 import { toast } from "react-toastify";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { getDoc, doc } from "firebase/firestore";
+import { auth, db } from "../firebase/firebase";
 import { useData } from "../context/DataContext";
-import request from "../api/request";
 
 const Login = () => {
-  const { userFormData, setUserFormData, navigate, setCurrentUser } = useData();
+  const { navigate, setCurrentUser, setLoading } = useData();
+
+  const [loginData, setLoginData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [localLoading, setLocalLoading] = useState(false);
 
   const handleChange = (e) => {
-    setUserFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setLoginData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!userFormData.email || !userFormData.password)
-      return toast.error("Please fill in all the fields.");
+    const { email, password } = loginData;
 
-    if (userFormData.password.length < 6)
-      return toast.error("Password must be at least 6 characters long.");
+    if (!email || !password) {
+      toast.error("Please fill in all the fields.");
+      return;
+    }
 
     try {
-      const res = await request.get("/users", {
-        params: {
-          email: userFormData.email,
-          password: userFormData.password,
-        },
-      });
+      setLocalLoading(true);
+      setLoading(true);
 
-      if (res.data.length === 0) {
-        return toast.error("Invalid email or password.");
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email.toLowerCase(),
+        password
+      );
+
+      const user = userCredential.user;
+
+      // Fetch Firestore user data
+      const userDocRef = doc(db, "users", user.uid);
+      const userSnapshot = await getDoc(userDocRef);
+
+      if (!userSnapshot.exists()) {
+        toast.error("User data not found in Firestore.");
+        return;
       }
 
-      const user = res.data[0];
-      setCurrentUser(user);
-      setUserFormData({
-        email: "",
-        password: "",
-      });
+      const userData = userSnapshot.data();
+      setCurrentUser(userData);
       toast.success("Login successful.");
-      localStorage.setItem("user", JSON.stringify(user));
-      navigate("/");
+      setLoginData({ email: "", password: "" });
+
+      setTimeout(() => {
+        navigate("/");
+      }, 300);
     } catch (err) {
-      toast.error("Failed to login. " + err.message);
+      console.error("Login error:", err);
+      switch (err.code) {
+        case "auth/user-not-found":
+          toast.error("No user found with this email.");
+          break;
+        case "auth/wrong-password":
+          toast.error("Incorrect password.");
+          break;
+        case "auth/invalid-email":
+          toast.error("Invalid email format.");
+          break;
+        default:
+          toast.error("Login failed. " + err.message);
+      }
+    } finally {
+      setLocalLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="container mt-5" style={{ maxWidth: "400px" }}>
+    <div className="container mt-5 mb-5" style={{ maxWidth: "400px" }}>
       <h2 className="mb-4 text-center">Login</h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
@@ -57,7 +95,7 @@ const Login = () => {
             id="email"
             name="email"
             className="form-control"
-            value={userFormData.email}
+            value={loginData.email}
             onChange={handleChange}
             placeholder="Enter your email"
             required
@@ -74,15 +112,30 @@ const Login = () => {
             id="password"
             name="password"
             className="form-control"
-            value={userFormData.password}
+            value={loginData.password}
             onChange={handleChange}
             placeholder="Enter your password"
             required
           />
         </div>
 
-        <button type="submit" className="btn btn-primary w-100">
-          Login
+        <button
+          type="submit"
+          className="btn btn-primary w-100 d-flex align-items-center justify-content-center"
+          disabled={localLoading}
+        >
+          {localLoading ? (
+            <>
+              <span
+                className="spinner-border spinner-border-sm me-2"
+                role="status"
+                aria-hidden="true"
+              ></span>
+              Logging in...
+            </>
+          ) : (
+            "Login"
+          )}
         </button>
       </form>
     </div>

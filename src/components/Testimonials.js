@@ -19,7 +19,7 @@ const Testimonials = () => {
 
   return (
     <section
-      className="py-5 bg-white border-top"
+      className="py-5 bg-light border-top"
       aria-labelledby="testimonials-heading"
     >
       <div className="container">

@@ -1,21 +1,32 @@
 // src/components/Header.js
 import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useData } from "../context/DataContext";
-import "../styles/Header.css";
 import { toast } from "react-toastify";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase/firebase";
+import "../styles/Header.css";
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { currentUser, setCurrentUser } = useData();
+  const navigate = useNavigate();
+
   const isOrganizer = currentUser?.role === "organizer";
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
+  const closeMenu = () => setMenuOpen(false);
 
-  const handleLogout = () => {
-    setCurrentUser(null);
-    toast.success("Logout successful.");
-    localStorage.removeItem("user");
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setCurrentUser(null);
+      toast.success("Logout successful.");
+      closeMenu();
+      navigate("/");
+    } catch (err) {
+      toast.error("Logout failed.");
+    }
   };
 
   return (
@@ -36,13 +47,13 @@ const Header = () => {
       <div className={`collapse navbar-collapse ${menuOpen ? "show" : ""}`}>
         <ul className="navbar-nav ms-auto gap-3">
           <li className="nav-item">
-            <NavLink to="/" className="nav-link">
+            <NavLink to="/" className="nav-link" onClick={closeMenu}>
               Home
             </NavLink>
           </li>
 
           <li className="nav-item">
-            <NavLink to="/events" className="nav-link">
+            <NavLink to="/events" className="nav-link" onClick={closeMenu}>
               All Events
             </NavLink>
           </li>
@@ -50,14 +61,22 @@ const Header = () => {
           {currentUser && (
             <>
               <li className="nav-item">
-                <NavLink to="/my-bookings" className="nav-link">
+                <NavLink
+                  to="/my-bookings"
+                  className="nav-link"
+                  onClick={closeMenu}
+                >
                   My Bookings
                 </NavLink>
               </li>
 
               {isOrganizer && (
                 <li className="nav-item">
-                  <NavLink to="/create" className="nav-link">
+                  <NavLink
+                    to="/create"
+                    className="nav-link"
+                    onClick={closeMenu}
+                  >
                     Create Event
                   </NavLink>
                 </li>
@@ -68,40 +87,40 @@ const Header = () => {
           {!currentUser && (
             <>
               <li className="nav-item">
-                <NavLink to="/login" className="nav-link">
+                <NavLink to="/login" className="nav-link" onClick={closeMenu}>
                   Login
+                </NavLink>
+              </li>
+
+              <li className="nav-item">
+                <NavLink
+                  to="/register"
+                  className="nav-link"
+                  onClick={closeMenu}
+                >
+                  Register
                 </NavLink>
               </li>
             </>
           )}
-
-          <li className="nav-item">
-            <NavLink to="/register" className="nav-link">
-              Register
-            </NavLink>
-          </li>
 
           {currentUser && (
             <>
               <li className="nav-item">
-                <NavLink to="/profile" className="nav-link">
-                  <i className="fa fa-user"></i> {currentUser.firstName}
+                <NavLink to="/profile" className="nav-link" onClick={closeMenu}>
+                  <i className="fa fa-user me-1"></i> {currentUser.firstName}
                 </NavLink>
               </li>
-            </>
-          )}
 
-          {currentUser && (
-            <li className="nav-item">
-              <button
-                className="btn btn-outline-danger"
-                onClick={() => {
-                  handleLogout();
-                }}
-              >
-                Logout
-              </button>
-            </li>
+              <li className="nav-item">
+                <button
+                  className="btn btn-outline-danger"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+              </li>
+            </>
           )}
         </ul>
       </div>

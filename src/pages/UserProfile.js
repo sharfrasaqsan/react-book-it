@@ -13,7 +13,7 @@ const UserProfile = () => {
     return <p className="text-center text-danger mt-5">User not found.</p>;
 
   return (
-    <div className="container mt-5">
+    <div className="container mt-5 mb-5">
       <h2 className="mb-4 text-center">User Profile</h2>
       <div className="card shadow border-0 p-4">
         <div className="mb-3">

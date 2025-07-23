@@ -6,7 +6,7 @@ const Register = () => {
   const [role, setRole] = useState("user");
 
   return (
-    <div className="container mt-5" style={{ maxWidth: "500px" }}>
+    <div className="container mt-5 mb-5" style={{ maxWidth: "500px" }}>
       <h2 className="mb-4 text-center">Register</h2>
       <div className="row text-center mb-4">
         <div className="col">

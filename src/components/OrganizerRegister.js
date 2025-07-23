@@ -1,18 +1,27 @@
 import { toast } from "react-toastify";
-import request from "../api/request";
 import { useData } from "../context/DataContext";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
+import { doc, setDoc } from "firebase/firestore"; // <-- changed here
+import { auth, db } from "../firebase/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 const OrganizerRegister = () => {
-  const { users, setUsers, userFormData, setUserFormData, navigate } =
-    useData();
+  const {
+    users,
+    setUsers,
+    userFormData,
+    setUserFormData,
+    navigate,
+    loading,
+    setLoading,
+  } = useData();
 
   const handleChange = (e) => {
     setUserFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleCreateUser = (e) => {
+  const handleCreateUser = async (e) => {
     e.preventDefault();
 
     if (
@@ -29,6 +38,10 @@ const OrganizerRegister = () => {
       return toast.error("Passwords do not match.");
     }
 
+    if (userFormData.password.length < 8) {
+      return toast.error("Password must be at least 8 characters long.");
+    }
+
     const existingUser = users.find(
       (user) => user.email === userFormData.email && user.role === "organizer"
     );
@@ -36,29 +49,38 @@ const OrganizerRegister = () => {
       return toast.error("User with this email already exists. Please login.");
     }
 
-    if (userFormData.password.length < 8) {
-      return toast.error("Password must be at least 8 characters long.");
-    }
+    setLoading(true);
 
     try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        userFormData.email,
+        userFormData.password
+      );
+
+      const { uid } = userCredential.user;
+
       const newUser = {
+        id: uid,
         firstName: userFormData.firstName,
         lastName: userFormData.lastName,
         email: userFormData.email,
-        password: userFormData.password,
         role: "organizer",
-        phone: userFormData.phone,
-        address: userFormData.address,
-        city: userFormData.city,
-        state: userFormData.state,
-        country: userFormData.country,
+        phone: userFormData.phone || "",
+        address: userFormData.address || "",
+        city: userFormData.city || "",
+        state: userFormData.state || "",
+        country: userFormData.country || "",
         createdAt: format(new Date(), "yyyy-MM-dd h:mm:ss a"),
         updatedAt: null,
         bookedEvents: [],
       };
 
-      const res = request.post("/users", newUser);
-      setUsers([...users, res.data]);
+      // Use setDoc with uid as document ID for Firestore user doc
+      await setDoc(doc(db, "users", uid), newUser);
+
+      setUsers([...users, newUser]);
+
       setUserFormData({
         firstName: "",
         lastName: "",
@@ -71,10 +93,13 @@ const OrganizerRegister = () => {
         state: "",
         country: "",
       });
+
       toast.success("Organizer account created successfully.");
       navigate("/login");
     } catch (err) {
       toast.error("Failed to create user. " + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -83,7 +108,7 @@ const OrganizerRegister = () => {
       <h5 className="mb-4 text-center">Organizer Registration</h5>
       <form onSubmit={handleCreateUser}>
         <div className="mb-3">
-          <label htmlFor="fisrtName" className="form-label">
+          <label htmlFor="firstName" className="form-label">
             First Name
           </label>
           <input
@@ -144,7 +169,7 @@ const OrganizerRegister = () => {
             onChange={handleChange}
             placeholder="Enter your password"
             required
-            minLength={6}
+            minLength={8}
           />
         </div>
 
@@ -161,15 +186,30 @@ const OrganizerRegister = () => {
             onChange={handleChange}
             placeholder="Confirm your password"
             required
-            minLength={6}
+            minLength={8}
           />
-          <span className="form-text">
+          <small className="form-text text-muted">
             * Password must be at least 8 characters
-          </span>
+          </small>
         </div>
 
-        <button type="submit" className="btn btn-primary w-100">
-          Register as Organizer
+        <button
+          type="submit"
+          className="btn btn-primary w-100 d-flex align-items-center justify-content-center"
+          disabled={loading}
+        >
+          {loading ? (
+            <>
+              <span
+                className="spinner-border spinner-border-sm me-2"
+                role="status"
+                aria-hidden="true"
+              ></span>
+              Registering...
+            </>
+          ) : (
+            "Register as Organizer"
+          )}
         </button>
 
         <p className="text-center mt-3">

@@ -1,17 +1,17 @@
 import { useParams } from "react-router-dom";
 import { useData } from "../context/DataContext";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
 import { confirmDialog } from "../utils/confirmDialog";
-import request from "../api/request";
-import { collection, updateDoc } from "firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 
 const EditEvent = () => {
   const { events, setEvents, editFormData, setEditFormData, navigate } =
     useData();
   const { id } = useParams();
+  const [loading, setLoading] = useState(false);
 
   const event = events.find((i) => i.id === id);
 
@@ -32,7 +32,6 @@ const EditEvent = () => {
     return <p className="text-center mt-5">Loading...</p>;
   }
 
-  // Update Event
   const handleUpdateEvent = async (id) => {
     if (
       !editFormData.title ||
@@ -43,26 +42,22 @@ const EditEvent = () => {
       return toast.error("Please fill in all the fields.");
     }
 
-    // Check if date and time are valid
-    const now = new Date();
     if (!editFormData.date || !editFormData.time) {
       return toast.error("Please select both date and time.");
     }
-    // Combine date and time like: "2025-07-20T14:30"
+
     const eventDateTimeString = `${editFormData.date}T${editFormData.time}`;
-    // Convert to a Date object
     const eventDateTime = new Date(eventDateTimeString);
-    // Check if it's a valid date
     if (isNaN(eventDateTime.getTime())) {
       return toast.error("Invalid date and time.");
     }
-    // Compare with current date and time
+
+    const now = new Date();
     if (eventDateTime < now) {
       return toast.error("Event date and time must be in the future.");
     }
 
-    // Check if capacity is greater than 0
-    if (editFormData.capacity <= 0) {
+    if (Number(editFormData.capacity) <= 0) {
       return toast.error("Capacity must be greater than 0.");
     }
 
@@ -77,6 +72,8 @@ const EditEvent = () => {
       return;
     }
 
+    setLoading(true);
+
     try {
       const updatedEvent = {
         title: editFormData.title,
@@ -85,26 +82,24 @@ const EditEvent = () => {
         time: editFormData.time,
         capacity: Number(editFormData.capacity),
         location: editFormData.location,
-        updatedAt: format(new Date(), "yyyy-MM-dd hh:mm:ss a"),
+        updatedAt: format(new Date(), "yyyy-MM-dd HH:mm:ss a"),
       };
 
-      const docRef = await updateDoc(
-        collection(db, "events", id),
-        updatedEvent
-      );
+      const docRef = doc(db, "events", id);
+      await updateDoc(docRef, updatedEvent);
 
-      if (!docRef) {
-        toast.error("Failed to update event.");
-      }
-
+      // Update local state
       const updatedEvents = events.map((i) =>
-        i.id === id ? { updatedEvent } : i
+        i.id === id ? { ...i, ...updatedEvent } : i
       );
       setEvents(updatedEvents);
+
       toast.success("Event updated successfully.");
       navigate(`/event/${id}`);
     } catch (err) {
       toast.error("Failed to update event. " + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -122,6 +117,7 @@ const EditEvent = () => {
             handleUpdateEvent(event.id);
           }}
         >
+          {/* ... form inputs unchanged ... */}
           <div className="col-md-6">
             <label htmlFor="event-title" className="form-label">
               Event Title
@@ -225,8 +221,12 @@ const EditEvent = () => {
           </div>
 
           <div className="col-12 text-end">
-            <button type="submit" className="btn btn-success mt-3">
-              Update Event
+            <button
+              type="submit"
+              className="btn btn-success mt-3"
+              disabled={loading}
+            >
+              {loading ? "Updating..." : "Update Event"}
             </button>
           </div>
         </form>
