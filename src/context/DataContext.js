@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { format } from "date-fns";
+import { format, isBefore } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { confirmDialog } from "../utils/confirmDialog";
@@ -13,6 +13,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import { useAuth } from "./AuthContext";
+import { isEventClosed } from "../utils/EventExpired";
 
 const DataContext = createContext();
 
@@ -191,6 +192,14 @@ export const DataProvider = ({ children }) => {
     }
     if (event.capacity <= 0) {
       toast.error("This event is fully booked.");
+      return;
+    }
+
+    // If event expires
+    const isClosed = isEventClosed(event.date, event.time);
+
+    if (isClosed) {
+      toast.error("This event is closed.");
       return;
     }
 
