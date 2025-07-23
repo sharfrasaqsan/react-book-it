@@ -86,7 +86,7 @@ const App = () => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        toastClassName="alert alert-info m-2"
+        toastClassName="alert alert-info m-2 mt-5"
         bodyClassName="m-0 text-dark"
       />
     </div>
