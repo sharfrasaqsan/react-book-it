@@ -103,24 +103,25 @@ const EventDetails = () => {
             </button>
           )}
 
-          {currentUser?.role === "organizer" && (
-            <>
-              <Link
-                to={`/event/edit/${event.id}`}
-                className="btn btn-outline-info"
-              >
-                Edit Event
-              </Link>
+          {currentUser?.id === event.organizerId &&
+            currentUser?.role === "organizer" && (
+              <>
+                <Link
+                  to={`/event/edit/${event.id}`}
+                  className="btn btn-outline-info"
+                >
+                  Edit Event
+                </Link>
 
-              <button
-                type="button"
-                className="btn btn-danger"
-                onClick={() => handleDeleteEvent(event.id)}
-              >
-                Delete Event
-              </button>
-            </>
-          )}
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={() => handleDeleteEvent(event.id)}
+                >
+                  Delete Event
+                </button>
+              </>
+            )}
         </div>
       </div>
     </div>

@@ -24,7 +24,7 @@ const RecentEventList = () => {
 
       <div className="row">
         {events
-          .slice(0, 9)
+          .slice(-9) // Last added 9 events
           .reverse()
           .map((event) => (
             <Event key={event.id} event={event} />
