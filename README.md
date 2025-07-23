@@ -1,70 +1,175 @@
-# Getting Started with Create React App
+# 🎉 Event Manager Web App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A full-stack event management platform built with **React**, **Firebase**, and **Tailwind CSS**. It allows users to register, book events, and manage their profiles, while organizers can create, edit, and delete events in real time.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 🚀 Live Demo
 
-### `npm start`
+[Visit the App]([https://your-deployment-link.com](https://react-book-it.vercel.app/))  
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 📌 Features
 
-### `npm test`
+### 🔐 Authentication
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Firebase Authentication
+- Role-based access (Attendee & Organizer)
+- Persistent login
 
-### `npm run build`
+### 👥 User Roles
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- **Attendee**
+  - Register and login
+  - View all events
+  - Book and cancel bookings
+  - View booked events
+- **Organizer**
+  - Register and login
+  - Create new events
+  - Edit or delete owned events
+  - View attendees
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 🗓️ Events
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- Create events with:
+  - Title, description, date, time, location, capacity
+- Real-time updates using Firestore
+- Dynamic UI rendering based on event status (booked/full)
 
-### `npm run eject`
+### 🛆 Firebase Services Used
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- Firestore (real-time database)
+- Firebase Auth (user management)
+- Firebase Hosting (optional)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 🥯 Test Accounts
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+> You can use the following test accounts to explore both user and organizer functionality:
 
-## Learn More
+### 👤 Attendee Accounts
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+| Email                                              | Password  | First Name | Last Name |
+| -------------------------------------------------- | --------- | ---------- | --------- |
+| testuser1@gmail.com                                | testuser1 | Ayaan      | Silva     |
+| testuser2@gmail.com                                | testuser2 | Dilan      | Fernando  |
+| testuser3@gmail.com                                | testuser3 | Nimesha    | Perera    |
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### 🧑‍💼 Organizer Accounts
 
-### Code Splitting
+| Email                                              | Password   | First Name | Last Name   |
+| -------------------------------------------------- | ---------- | ---------- | ----------- |
+| organizer1@gmail.com                               | organizer1 | Kasun      | Jayawardena |
+| organizer2@gmail.com                               | organizer2 | Harsha     | Weerasinghe |
+| organizer3@gmail.com                               | organizer3 | Amaya      | Rodrigo     |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+> Note: Roles are defined in Firestore under the `users` collection.
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 🛠️ Tech Stack
 
-### Making a Progressive Web App
+- **Frontend**: React, Tailwind CSS, React Router
+- **Backend/Database**: Firebase Firestore
+- **Authentication**: Firebase Auth
+- **State Management**: React Context API
+- **Form Handling**: useState, controlled components
+- **Notifications**: React-Toastify
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
+## 📂 Folder Structure
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```
+src/
+│
+├── components/          # Reusable UI components
+├── pages/               # Route-based pages (Home, Event Details, etc.)
+├── context/             # Context for auth and data (e.g., AuthContext, DataContext)
+├── services/            # Firebase configurations and helpers
+├── utils/               # Helper functions (e.g., date formatters)
+├── App.jsx
+└── main.jsx
+```
 
-### Deployment
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## ⚙️ Setup Instructions
 
-### `npm run build` fails to minify
+1. **Clone the Repository**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```bash
+git clone https://github.com/your-username/event-manager.git
+cd event-manager
+```
+
+2. **Install Dependencies**
+
+```bash
+npm install
+```
+
+3. **Set up Firebase**
+   - Create a Firebase project
+   - Enable Firestore and Authentication (Email/Password)
+   - Get your Firebase config and replace in `src/firebase.js`
+
+```js
+// src/firebase.js
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_APP.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  ...
+};
+```
+
+4. **Run the Project**
+
+```bash
+npm run dev
+```
+
+---
+
+## 🔐 Firebase Firestore Structure (Example)
+
+```
+users/
+  uid123/
+    firstName: "Ayaan"
+    lastName: "Silva"
+    role: "attendee"
+
+events/
+  eventId456/
+    title: "AI & Web Summit"
+    bookedUsers: [uid123]
+```
+
+---
+
+## 📌 Future Improvements
+
+- Add search, filter & sort functionality
+- Pagination for event lists
+- Role-based dashboards
+- Email notifications
+- Admin panel
+
+---
+
+## 📧 Contact
+
+If you have any questions or feedback, feel free to reach out.
+
+**Developer:** Mohamed Sharfras  
+**Email:** sharfrasaqsan@gmail.com  
+**GitHub:** [@yourusername](https://github.com/yourusername)
+
+---
+
+> Built with ❤️ using React & Firebase
