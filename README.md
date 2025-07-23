@@ -6,7 +6,7 @@ A full-stack event management platform built with **React**, **Firebase**, and *
 
 ## 🚀 Live Demo
 
-[Visit the App]([https://your-deployment-link.com](https://react-book-it.vercel.app/))  
+[Visit the App](https://react-book-it.vercel.app/)
 
 ---
 
@@ -72,7 +72,7 @@ A full-stack event management platform built with **React**, **Firebase**, and *
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React, Tailwind CSS, React Router
+- **Frontend**: React, Bootstrap, React Router
 - **Backend/Database**: Firebase Firestore
 - **Authentication**: Firebase Auth
 - **State Management**: React Context API
@@ -89,7 +89,6 @@ src/
 ├── components/          # Reusable UI components
 ├── pages/               # Route-based pages (Home, Event Details, etc.)
 ├── context/             # Context for auth and data (e.g., AuthContext, DataContext)
-├── services/            # Firebase configurations and helpers
 ├── utils/               # Helper functions (e.g., date formatters)
 ├── App.jsx
 └── main.jsx
@@ -118,19 +117,22 @@ npm install
    - Get your Firebase config and replace in `src/firebase.js`
 
 ```js
-// src/firebase.js
 const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "YOUR_APP.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  ...
+  apiKey: "AIzaSyAMVlvwl_ZSmZmcTwts0Ib-mP7uvpr5WAE",
+  authDomain: "book-it-d0e63.firebaseapp.com",
+  projectId: "book-it-d0e63",
+  storageBucket: "book-it-d0e63.firebasestorage.app",
+  messagingSenderId: "1009993610142",
+  appId: "1:1009993610142:web:f30b3bd2b2492b11389c8f",
+  measurementId: "G-8Z21PT48SV",
 };
+
 ```
 
 4. **Run the Project**
 
 ```bash
-npm run dev
+npm start
 ```
 
 ---
@@ -168,7 +170,7 @@ If you have any questions or feedback, feel free to reach out.
 
 **Developer:** Mohamed Sharfras  
 **Email:** sharfrasaqsan@gmail.com  
-**GitHub:** [@yourusername](https://github.com/yourusername)
+**GitHub:** [@sharfrasaqsan](https://github.com/sharfrasaqsan)
 
 ---
 
