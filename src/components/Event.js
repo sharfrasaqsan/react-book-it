@@ -12,7 +12,7 @@ const Event = ({ event }) => {
 
   const isBooked = currentUser?.bookedEvents?.includes(event.id);
 
-  const isClosed = isEventClosed(event.date, event.time);
+  const isClosed = isEventClosed(event?.date, event?.time);
 
   return (
     <div className="col-md-6 col-lg-4 mb-4">
