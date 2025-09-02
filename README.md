@@ -1,6 +1,6 @@
 # React Book-It
 
-[![Live Demo](https://img.icons8.com/?size=100&id=UyjPlooIqDBC&format=png&color=000000)](https://sharfrasaqsan.vercel.app/)
+[![Live Demo](https://img.icons8.com/?size=100&id=UyjPlooIqDBC&format=png&color=000000)](https://react-book-it.vercel.app/)
 
 A platform for event organizers and attendees to connect, discover, book, and manage events.
 
