@@ -27,6 +27,7 @@ const MyBookings = () => {
   const myUser = users.find((u) => u.id === currentUser.id);
 
   const bookedIds = myUser?.bookedEvents ?? [];
+
   const bookedEvents = useMemo(() => {
     if (!Array.isArray(events) || !Array.isArray(bookedIds)) return [];
     const byId = new Map(events.map((e) => [e.id, e]));

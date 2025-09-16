@@ -5,7 +5,6 @@ import Partners from "../components/Partners";
 import RecentEventList from "../components/RecentEventList";
 import Testimonials from "../components/Testimonials";
 import CTA from "../components/CTA";
-import Newsletter from "../components/NewsLetter";
 
 const Dashboard = () => {
   return (
@@ -17,7 +16,6 @@ const Dashboard = () => {
       <Testimonials />
       <Partners />
       <CTA />
-      <Newsletter />
     </>
   );
 };
