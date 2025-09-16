@@ -12,7 +12,6 @@ const RecentEventList = () => {
   }
 
   if (events.length === 0) {
-    <div className="alert alert-info text-center">No events available.</div>;
   }
 
   return (
@@ -22,14 +21,20 @@ const RecentEventList = () => {
         Check out the latest events you might be interested in
       </p>
 
-      <div className="row">
-        {events
-          .slice(-9) // Last added 9 events
-          .reverse()
-          .map((event) => (
-            <Event key={event.id} event={event} />
-          ))}
-      </div>
+      {events.length > 0 ? (
+        <div className="row">
+          {events
+            .slice(-9) // Last added 9 events
+            .reverse()
+            .map((event) => (
+              <Event key={event.id} event={event} />
+            ))}
+        </div>
+      ) : (
+        <div className="alert alert-info text-center">
+          No events available right now!
+        </div>
+      )}
     </section>
   );
 };
