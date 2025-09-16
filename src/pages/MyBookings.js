@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import { isEventClosed } from "../utils/EventExpired";
 
-// Local helpers (so we don't depend on exports you don't have)
+// Local helpers (unchanged)
 const toLocalDate = (dateStr, timeStr = "00:00") => {
   if (!dateStr || typeof dateStr !== "string") return null;
   const hhmm = String(timeStr || "00:00")
@@ -17,7 +17,7 @@ const toLocalDate = (dateStr, timeStr = "00:00") => {
 const compareEventsDesc = (a, b) => {
   const ad = toLocalDate(a?.date, a?.time)?.getTime() ?? -Infinity;
   const bd = toLocalDate(b?.date, b?.time)?.getTime() ?? -Infinity;
-  return bd - ad; // newest/upcoming first
+  return bd - ad;
 };
 
 const MyBookings = () => {
@@ -25,8 +25,8 @@ const MyBookings = () => {
   const navigate = useNavigate();
 
   const myUser = users.find((u) => u.id === currentUser.id);
-  const bookedIds = myUser?.bookedEvents ?? [];
 
+  const bookedIds = myUser?.bookedEvents ?? [];
   const bookedEvents = useMemo(() => {
     if (!Array.isArray(events) || !Array.isArray(bookedIds)) return [];
     const byId = new Map(events.map((e) => [e.id, e]));
@@ -41,7 +41,7 @@ const MyBookings = () => {
     try {
       await handleCancelBooking(eventId);
     } catch (err) {
-      console.error("Cancel booking failed:", err);
+      console.error(err);
     }
   };
 
@@ -63,7 +63,6 @@ const MyBookings = () => {
     return `${ev.date} • ${String(ev.time || "").padStart(5, "0")}`;
   };
 
-  // Guard: user or users list not ready
   if (!currentUser || !Array.isArray(users)) {
     return (
       <div className="container py-5 text-center">
@@ -73,14 +72,43 @@ const MyBookings = () => {
     );
   }
 
+  const MobileCard = ({ ev }) => (
+    <div key={ev.id} className="card mb-3 shadow-sm">
+      <div className="card-body p-3">
+        <div className="d-flex justify-content-between align-items-start mb-1">
+          <h3 className="h6 fw-semibold mb-0 me-2">{ev.title}</h3>
+          <StatusBadge ev={ev} />
+        </div>
+        <div className="text-muted small mb-2">{whenToString(ev)}</div>
+        <div className="text-muted small mb-3">
+          <i className="bi bi-geo-alt me-2"></i>
+          <span className="text-break">{ev.location}</span>
+        </div>
+        <div className="d-grid gap-2">
+          <Link to={`/event/${ev.id}`} className="btn btn-primary btn-sm">
+            Details
+          </Link>
+          {handleCancelBooking && (
+            <button
+              className="btn btn-outline-danger btn-sm"
+              onClick={() => cancelBooking(ev.id)}
+            >
+              Cancel booking
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="container py-5">
-      <div className="d-flex flex-wrap gap-3 align-items-center justify-content-between mb-4">
+    <div className="container py-4 py-md-5">
+      <div className="d-flex flex-column flex-md-row gap-2 gap-md-3 align-items-stretch align-items-md-center justify-content-between mb-3 mb-md-4">
         <div>
-          <h1 className="display-6 fw-bold mb-1 text-uppercase">
+          <h1 className="h3 h2-md fw-bold mb-1 text-uppercase">
             My Booked Events
           </h1>
-          <div className="text-muted">
+          <div className="text-muted small">
             Review your bookings or jump to event details.
           </div>
         </div>
@@ -102,97 +130,99 @@ const MyBookings = () => {
           </Link>
         </div>
       ) : (
-        <div className="table-responsive">
-          <table className="table table-sm table-hover align-middle">
-            <thead
-              className="table-light position-sticky top-0"
-              style={{ zIndex: 1 }}
-            >
-              <tr>
-                <th style={{ width: "36%" }}>Title</th>
-                <th style={{ width: "14%" }} className="d-none d-md-table-cell">
-                  Date
-                </th>
-                <th style={{ width: "14%" }} className="d-none d-lg-table-cell">
-                  Time
-                </th>
-                <th style={{ width: "22%" }}>Location</th>
-                <th
-                  style={{ width: "8%" }}
-                  className="text-center d-none d-lg-table-cell"
-                >
-                  Capacity
-                </th>
-                <th style={{ width: "10%" }}>Status</th>
-                <th style={{ width: "10%" }} className="text-end">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {bookedEvents.map((ev) => (
-                <tr key={ev.id}>
-                  {/* Title */}
-                  <td className="text-break fw-semibold">
-                    <Link
-                      to={`/event/${ev.id}`}
-                      className="text-decoration-none"
-                    >
-                      {ev.title}
-                    </Link>
-                    <div className="text-muted small d-md-none">
-                      {whenToString(ev)}
-                    </div>
-                  </td>
+        <>
+          {/* Mobile cards */}
+          <div className="d-md-none">
+            {bookedEvents.map((ev) => (
+              <MobileCard key={ev.id} ev={ev} />
+            ))}
+          </div>
 
-                  {/* Date */}
-                  <td className="text-nowrap d-none d-md-table-cell">
-                    {ev.date}
-                  </td>
-
-                  {/* Time */}
-                  <td className="text-nowrap d-none d-lg-table-cell">
-                    {ev.time}
-                  </td>
-
-                  {/* Location */}
-                  <td className="text-break">{ev.location}</td>
-
-                  {/* Capacity (hidden on md-) */}
-                  <td className="text-center d-none d-lg-table-cell">
-                    {Number(ev.capacity) || 0}
-                  </td>
-
-                  {/* Status */}
-                  <td>
-                    <StatusBadge ev={ev} />
-                  </td>
-
-                  {/* Actions */}
-                  <td className="text-end">
-                    <div className="btn-group">
+          {/* Desktop table */}
+          <div className="table-responsive d-none d-md-block">
+            <table className="table table-sm table-hover align-middle">
+              <thead
+                className="table-light position-sticky top-0"
+                style={{ zIndex: 1 }}
+              >
+                <tr>
+                  <th style={{ width: "36%" }}>Title</th>
+                  <th
+                    style={{ width: "14%" }}
+                    className="d-none d-md-table-cell"
+                  >
+                    Date
+                  </th>
+                  <th
+                    style={{ width: "14%" }}
+                    className="d-none d-lg-table-cell"
+                  >
+                    Time
+                  </th>
+                  <th style={{ width: "22%" }}>Location</th>
+                  <th
+                    style={{ width: "8%" }}
+                    className="text-center d-none d-lg-table-cell"
+                  >
+                    Capacity
+                  </th>
+                  <th style={{ width: "10%" }}>Status</th>
+                  <th style={{ width: "10%" }} className="text-end">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {bookedEvents.map((ev) => (
+                  <tr key={ev.id}>
+                    <td className="text-break fw-semibold">
                       <Link
                         to={`/event/${ev.id}`}
-                        className="btn btn-outline-primary btn-sm"
+                        className="text-decoration-none"
                       >
-                        Details
+                        {ev.title}
                       </Link>
-                      {handleCancelBooking && (
-                        <button
-                          className="btn btn-outline-danger btn-sm"
-                          onClick={() => cancelBooking(ev.id)}
-                          title="Cancel this booking"
+                      <div className="text-muted small d-md-none">
+                        {whenToString(ev)}
+                      </div>
+                    </td>
+                    <td className="text-nowrap d-none d-md-table-cell">
+                      {ev.date}
+                    </td>
+                    <td className="text-nowrap d-none d-lg-table-cell">
+                      {ev.time}
+                    </td>
+                    <td className="text-break">{ev.location}</td>
+                    <td className="text-center d-none d-lg-table-cell">
+                      {Number(ev.capacity) || 0}
+                    </td>
+                    <td>
+                      <StatusBadge ev={ev} />
+                    </td>
+                    <td className="text-end">
+                      <div className="btn-group gap-3">
+                        <Link
+                          to={`/event/${ev.id}`}
+                          className="btn btn-outline-primary btn-sm"
                         >
-                          Cancel
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                          Details
+                        </Link>
+                        {handleCancelBooking && (
+                          <button
+                            className="btn btn-outline-danger btn-sm"
+                            onClick={() => cancelBooking(ev.id)}
+                          >
+                            Cancel
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   );
