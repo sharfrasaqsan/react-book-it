@@ -2,69 +2,54 @@ import { useState } from "react";
 
 const Newsletter = () => {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState(null); // 'success' or 'error'
-  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState(null);
 
-  const handleSubmit = (e) => {
+  const submit = (e) => {
     e.preventDefault();
-
-    // Simple email regex validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setStatus("error");
-      setMessage("Please enter a valid email address.");
-      return;
-    }
-
-    // Simulate API call or subscription
-    setStatus("success");
-    setMessage("Thank you for subscribing!");
-    setEmail(""); // Clear input
+    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    setStatus(ok ? "ok" : "err");
+    if (ok) setEmail("");
   };
 
   return (
-    <section className="py-5 bg-light border-top">
+    <section id="newsletter" className="py-5 bg-body-tertiary border-top">
       <div className="container text-center">
-        <h2 className="fw-bold mb-3">Stay Updated</h2>
+        <span className="eyebrow">Subscribe</span>
+        <h2 className="fw-bold mt-1 mb-3">Stay in the loop</h2>
         <p className="text-muted mb-4">
-          Subscribe to get the latest events and news in your inbox.
+          Get the freshest events and updates in your inbox.
         </p>
+
         <form
-          className="d-flex justify-content-center gap-2 flex-wrap"
-          onSubmit={handleSubmit}
-          noValidate
+          onSubmit={submit}
+          className="d-flex gap-2 justify-content-center flex-wrap glass rounded-pill p-2 soft-shadow"
         >
-          <label htmlFor="newsletter-email" className="visually-hidden">
-            Email address
+          <label htmlFor="nl" className="visually-hidden">
+            Email
           </label>
           <input
+            id="nl"
             type="email"
-            id="newsletter-email"
-            className="form-control w-auto"
-            placeholder="Enter your email"
+            className="form-control bg-transparent border-0"
+            style={{ minWidth: 260 }}
+            placeholder="you@company.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            aria-describedby="newsletter-feedback"
           />
-          <button type="submit" className="btn btn-primary" aria-live="polite">
+          <button className="btn btn-primary rounded-pill px-4 lift-on-hover">
             Subscribe
           </button>
         </form>
-        {message && (
-          <div
-            id="newsletter-feedback"
-            className={`mt-3 ${
-              status === "success" ? "text-success" : "text-danger"
-            }`}
-            role="alert"
-          >
-            {message}
-          </div>
+
+        {status === "ok" && (
+          <div className="text-success mt-3">Thanks for subscribing!</div>
+        )}
+        {status === "err" && (
+          <div className="text-danger mt-3">Please enter a valid email.</div>
         )}
       </div>
     </section>
   );
 };
-
 export default Newsletter;

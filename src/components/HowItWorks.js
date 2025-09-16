@@ -1,47 +1,41 @@
 const HowItWorks = () => {
   const steps = [
     {
-      title: "Register",
-      description:
-        "Create your account as an organizer or attendee to get started.",
-      icon: "📝",
+      icon: "bi-person-plus",
+      title: "Create your account",
+      desc: "Join as an attendee or organizer — it’s free.",
     },
     {
-      title: "Discover & Book",
-      description:
-        "Find events that interest you or post your own to reach your audience.",
-      icon: "🔍",
+      icon: "bi-search-heart",
+      title: "Discover & book",
+      desc: "Filter by date, category, and location in seconds.",
     },
     {
-      title: "Attend & Enjoy",
-      description: "Get notifications and enjoy seamless event experiences.",
-      icon: "🎉",
+      icon: "bi-emoji-smile",
+      title: "Enjoy the event",
+      desc: "Get reminders, add to calendar, share with friends.",
     },
   ];
 
   return (
-    <section
-      className="bg-white py-5 border-top mb-3"
-      aria-labelledby="how-it-works-heading"
-    >
+    <section className="py-5 bg-body-tertiary border-top">
       <div className="container">
-        <h2 id="how-it-works-heading" className="text-center mb-5 fw-bold">
-          How It Works
-        </h2>
-        <div className="row text-center g-4">
-          {steps.map(({ title, description, icon }, idx) => (
-            <div className="col-md-4" key={idx}>
-              <div className="p-4 shadow rounded bg-white h-100 d-flex flex-column align-items-center">
-                <div
-                  className="display-4 mb-3"
-                  role="img"
-                  aria-label={title}
-                  style={{ color: "#0d6efd" }}
-                >
-                  {icon}
+        <div className="text-center mb-5">
+          <span className="eyebrow">How it works</span>
+          <h2 className="fw-bold mt-1">From idea to unforgettable</h2>
+        </div>
+
+        <div className="row g-4">
+          {steps.map((s, i) => (
+            <div className="col-md-4" key={i}>
+              <div className="card h-100 rounded-4 border-0 soft-shadow hover-outline animate-stagger">
+                <div className="card-body p-4 p-lg-5 text-center">
+                  <div className="icon-xxl text-primary mb-3">
+                    <i className={`bi ${s.icon}`} />
+                  </div>
+                  <h3 className="h5 fw-semibold mb-2">{s.title}</h3>
+                  <p className="text-muted mb-0">{s.desc}</p>
                 </div>
-                <h4 className="text-primary mb-3">{`${idx + 1}. ${title}`}</h4>
-                <p className="text-muted">{description}</p>
               </div>
             </div>
           ))}
@@ -50,5 +44,4 @@ const HowItWorks = () => {
     </section>
   );
 };
-
 export default HowItWorks;

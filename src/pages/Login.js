@@ -76,18 +76,6 @@ const Login = () => {
 
   return (
     <div className="container py-5">
-      {/* Breadcrumbs + header (consistent with other pages) */}
-      <nav aria-label="breadcrumb" className="mb-3">
-        <ol className="breadcrumb mb-0">
-          <li className="breadcrumb-item">
-            <Link to="/events">Events</Link>
-          </li>
-          <li className="breadcrumb-item active" aria-current="page">
-            Login
-          </li>
-        </ol>
-      </nav>
-
       <div className="d-flex flex-wrap gap-3 align-items-center justify-content-between mb-4">
         <div>
           <h1 className="display-6 fw-bold mb-1 text-uppercase">

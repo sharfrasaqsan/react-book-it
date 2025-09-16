@@ -1,42 +1,66 @@
+import { Link } from "react-router-dom";
 import { useData } from "../context/DataContext";
-import Event from "./Event";
 
 const RecentEventList = () => {
   const { events } = useData();
-
-  if (!events) {
-    <div className="text-center">
-      <div className="spinner-border text-primary" role="status" />
-      <p className="mt-2">Loading events...</p>
-    </div>;
-  }
-
-  if (events.length === 0) {
-  }
+  const recent = Array.isArray(events) ? [...events].slice(-8).reverse() : [];
 
   return (
-    <section className="container mt-5 mb-4">
-      <h2 className="mb-3 text-center fw-bold">Recent Events</h2>
-      <p className="text-center text-muted mb-4">
-        Check out the latest events you might be interested in
-      </p>
+    <section id="recent" className="py-5 bg-light border-top">
+      <div className="container">
+        <div className="d-flex align-items-end justify-content-between mb-3">
+          <div>
+            <span className="eyebrow">Fresh this week</span>
+            <h2 className="fw-bold mt-1">Recently added</h2>
+          </div>
+          <Link to="/events" className="btn btn-outline-primary lift-on-hover">
+            View all
+          </Link>
+        </div>
 
-      {events.length > 0 ? (
-        <div className="row">
-          {events
-            .slice(-9) // Last added 9 events
-            .reverse()
-            .map((event) => (
-              <Event key={event.id} event={event} />
-            ))}
-        </div>
-      ) : (
-        <div className="alert alert-info text-center">
-          No events available right now!
-        </div>
-      )}
+        {recent.length === 0 ? (
+          <div className="alert alert-info mb-0">
+            No events yet — check back soon.
+          </div>
+        ) : (
+          <div className="table-responsive rounded-4 soft-shadow bg-white">
+            <table className="table table-hover align-middle mb-0">
+              <thead className="table-light">
+                <tr>
+                  <th>Title</th>
+                  <th className="d-none d-md-table-cell">Date</th>
+                  <th className="d-none d-lg-table-cell">Time</th>
+                  <th>Location</th>
+                  <th className="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recent.map((ev) => (
+                  <tr key={ev.id}>
+                    <td className="fw-semibold text-break">{ev.title}</td>
+                    <td className="text-nowrap d-none d-md-table-cell">
+                      {ev.date}
+                    </td>
+                    <td className="text-nowrap d-none d-lg-table-cell">
+                      {ev.time}
+                    </td>
+                    <td className="text-break">{ev.location}</td>
+                    <td className="text-end">
+                      <Link
+                        to={`/event/${ev.id}`}
+                        className="btn btn-sm btn-primary lift-on-hover"
+                      >
+                        Details
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </section>
   );
 };
-
 export default RecentEventList;

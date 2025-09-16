@@ -1,65 +1,53 @@
 const AboutSection = () => {
+  const points = [
+    "Lightning-fast booking with real-time status",
+    "Organizer tools that feel effortless",
+    "A clean, accessible interface on every device",
+  ];
   return (
-    <section
-      className="py-5 bg-light border-top"
-      aria-labelledby="about-heading"
-    >
+    <section className="py-5">
       <div className="container">
         <div className="row align-items-center g-5">
-          <div className="col-md-6">
-            <img
-              src="https://sbims.com/wp-content/uploads/2018/09/Networking-Event.jpg"
-              alt="People networking at an event"
-              className="img-fluid rounded shadow"
-              loading="lazy"
-            />
+          <div className="col-lg-6 order-lg-2">
+            <div className="ratio ratio-16x9 rounded-4 overflow-hidden soft-shadow">
+              <img
+                src="https://images.unsplash.com/photo-1531058020387-3be344556be6?q=80&w=1600&auto=format&fit=crop"
+                alt="Vibrant audience in a modern venue"
+                className="w-100 h-100 object-fit-cover"
+                loading="lazy"
+              />
+            </div>
           </div>
-          <div className="col-md-6">
-            <h2 id="about-heading" className="fw-bold mb-3">
-              Why Choose Book-It?
-            </h2>
+          <div className="col-lg-6">
+            <span className="eyebrow mb-2">About Book-It</span>
+            <h2 className="fw-bold mb-3">Built for events that people love</h2>
             <p className="text-muted fs-5 mb-4">
-              Book-It empowers both organizers and attendees to connect and
-              thrive. Whether you're hosting a seminar, concert, or meetup — our
-              tools help you succeed with ease.
+              We obsess over a frictionless flow — discover, evaluate, book, and
+              attend. It just feels… right.
             </p>
-            <ul className="list-unstyled fs-5">
-              <li className="mb-2">
-                <span
-                  role="img"
-                  aria-label="Check mark"
-                  className="me-2 text-success"
-                >
-                  ✅
-                </span>
-                Hassle-free event creation
-              </li>
-              <li className="mb-2">
-                <span
-                  role="img"
-                  aria-label="Check mark"
-                  className="me-2 text-success"
-                >
-                  ✅
-                </span>
-                Instant attendee bookings
-              </li>
-              <li>
-                <span
-                  role="img"
-                  aria-label="Check mark"
-                  className="me-2 text-success"
-                >
-                  ✅
-                </span>
-                Mobile-optimized experience
-              </li>
+            <ul className="list-unstyled mb-4">
+              {points.map((t, i) => (
+                <li key={i} className="d-flex align-items-start mb-2">
+                  <i className="bi bi-check-circle-fill text-success me-2 mt-1" />
+                  <span>{t}</span>
+                </li>
+              ))}
             </ul>
+            <div className="d-flex gap-2">
+              <a href="#recent" className="btn btn-primary lift-on-hover">
+                Browse latest
+              </a>
+              <a
+                href="#newsletter"
+                className="btn btn-outline-secondary lift-on-hover"
+              >
+                Stay updated
+              </a>
+            </div>
           </div>
         </div>
       </div>
     </section>
   );
 };
-
 export default AboutSection;

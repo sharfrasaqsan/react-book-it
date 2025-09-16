@@ -2,7 +2,7 @@ import { toast } from "react-toastify";
 import { useData } from "../context/DataContext";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
-import { doc, setDoc } from "firebase/firestore"; // <-- changed here
+import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "../firebase/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 
@@ -17,9 +17,8 @@ const OrganizerRegister = () => {
     setLoading,
   } = useData();
 
-  const handleChange = (e) => {
-    setUserFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+  const handleChange = (e) =>
+    setUserFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
 
   const handleCreateUser = async (e) => {
     e.preventDefault();
@@ -33,32 +32,25 @@ const OrganizerRegister = () => {
     ) {
       return toast.error("Please fill in all the fields.");
     }
-
-    if (userFormData.password !== userFormData.confirmPassword) {
+    if (userFormData.password !== userFormData.confirmPassword)
       return toast.error("Passwords do not match.");
-    }
-
-    if (userFormData.password.length < 8) {
+    if (userFormData.password.length < 8)
       return toast.error("Password must be at least 8 characters long.");
-    }
 
-    const existingUser = users.find(
-      (user) => user.email === userFormData.email && user.role === "organizer"
+    const duplicate = users.find(
+      (u) => u.email === userFormData.email && u.role === "organizer"
     );
-    if (existingUser) {
-      return toast.error("User with this email already exists. Please login.");
-    }
+    if (duplicate)
+      return toast.error("Organizer with this email already exists.");
 
     setLoading(true);
-
     try {
-      const userCredential = await createUserWithEmailAndPassword(
+      const cred = await createUserWithEmailAndPassword(
         auth,
         userFormData.email,
         userFormData.password
       );
-
-      const { uid } = userCredential.user;
+      const { uid } = cred.user;
 
       const newUser = {
         id: uid,
@@ -76,9 +68,7 @@ const OrganizerRegister = () => {
         bookedEvents: [],
       };
 
-      // Use setDoc with uid as document ID for Firestore user doc
       await setDoc(doc(db, "users", uid), newUser);
-
       setUsers([...users, newUser]);
 
       setUserFormData({
@@ -94,7 +84,7 @@ const OrganizerRegister = () => {
         country: "",
       });
 
-      toast.success("Organizer account created successfully.");
+      toast.success("Organizer account created.");
       navigate("/");
     } catch (err) {
       toast.error("Failed to create user. " + err.message);
@@ -103,127 +93,103 @@ const OrganizerRegister = () => {
     }
   };
 
+  // NOTE: This component is rendered INSIDE a card by Register.js; no extra container here.
   return (
-    <div className="container mt-2" style={{ maxWidth: "400px" }}>
-      <h5 className="mb-4 text-center">Organizer Registration</h5>
-      <form onSubmit={handleCreateUser}>
-        <div className="mb-3">
-          <label htmlFor="firstName" className="form-label">
-            First Name
-          </label>
-          <input
-            type="text"
-            id="firstName"
-            name="firstName"
-            className="form-control"
-            value={userFormData.firstName}
-            onChange={handleChange}
-            placeholder="Enter your first name"
-            required
-            autoFocus
-          />
-        </div>
+    <form onSubmit={handleCreateUser} className="row g-3" noValidate>
+      <div className="col-md-6">
+        <label htmlFor="firstName" className="form-label fw-semibold">
+          First Name
+        </label>
+        <input
+          id="firstName"
+          name="firstName"
+          className="form-control"
+          value={userFormData.firstName}
+          onChange={handleChange}
+          required
+          autoFocus
+        />
+      </div>
 
-        <div className="mb-3">
-          <label htmlFor="lastName" className="form-label">
-            Last Name
-          </label>
-          <input
-            type="text"
-            id="lastName"
-            name="lastName"
-            className="form-control"
-            value={userFormData.lastName}
-            onChange={handleChange}
-            placeholder="Enter your last name"
-            required
-          />
-        </div>
+      <div className="col-md-6">
+        <label htmlFor="lastName" className="form-label fw-semibold">
+          Last Name
+        </label>
+        <input
+          id="lastName"
+          name="lastName"
+          className="form-control"
+          value={userFormData.lastName}
+          onChange={handleChange}
+          required
+        />
+      </div>
 
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label">
-            Email address
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            className="form-control"
-            value={userFormData.email}
-            onChange={handleChange}
-            placeholder="Enter your email"
-            required
-          />
-        </div>
+      <div className="col-12">
+        <label htmlFor="email" className="form-label fw-semibold">
+          Email
+        </label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          className="form-control"
+          value={userFormData.email}
+          onChange={handleChange}
+          placeholder="you@company.com"
+          required
+        />
+      </div>
 
-        <div className="mb-3">
-          <label htmlFor="password" className="form-label">
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            className="form-control"
-            value={userFormData.password}
-            onChange={handleChange}
-            placeholder="Enter your password"
-            required
-            minLength={8}
-          />
-        </div>
+      <div className="col-md-6">
+        <label htmlFor="password" className="form-label fw-semibold">
+          Password
+        </label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          className="form-control"
+          value={userFormData.password}
+          onChange={handleChange}
+          minLength={8}
+          required
+        />
+      </div>
 
-        <div className="mb-3">
-          <label htmlFor="confirmPassword" className="form-label">
-            Confirm Password
-          </label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            className="form-control"
-            value={userFormData.confirmPassword}
-            onChange={handleChange}
-            placeholder="Confirm your password"
-            required
-            minLength={8}
-          />
-          <small className="form-text text-muted">
-            * Password must be at least 8 characters
-          </small>
-        </div>
+      <div className="col-md-6">
+        <label htmlFor="confirmPassword" className="form-label fw-semibold">
+          Confirm Password
+        </label>
+        <input
+          id="confirmPassword"
+          name="confirmPassword"
+          type="password"
+          className="form-control"
+          value={userFormData.confirmPassword}
+          onChange={handleChange}
+          minLength={8}
+          required
+        />
+        <div className="form-text">Minimum 8 characters.</div>
+      </div>
 
-        <button
-          type="submit"
-          className="btn btn-primary w-100 d-flex align-items-center justify-content-center"
-          disabled={loading}
-        >
+      <div className="col-12 d-flex justify-content-end gap-2 mt-2">
+        <Link to="/login" className="btn btn-outline-secondary">
+          Login
+        </Link>
+        <button type="submit" className="btn btn-primary" disabled={loading}>
           {loading ? (
             <>
-              <span
-                className="spinner-border spinner-border-sm me-2"
-                role="status"
-                aria-hidden="true"
-              ></span>
-              Registering...
+              <span className="spinner-border spinner-border-sm me-2" />
+              Registering…
             </>
           ) : (
             "Register as Organizer"
           )}
         </button>
-
-        <p className="text-center mt-3">
-          Already have an account?{" "}
-          <Link
-            to="/login"
-            className="text-decoration-none fw-semibold text-primary"
-          >
-            Login
-          </Link>
-        </p>
-      </form>
-    </div>
+      </div>
+    </form>
   );
 };
-
 export default OrganizerRegister;

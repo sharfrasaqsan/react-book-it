@@ -1,12 +1,12 @@
 const Testimonials = () => {
-  const testimonials = [
+  const items = [
     {
       text: "Super easy to use and packed with amazing events!",
       author: "Ayesha",
       role: "Attendee",
     },
     {
-      text: "Book-It helped me manage my event like a professional.",
+      text: "Book-It helped me manage my event like a pro.",
       author: "Malik",
       role: "Organizer",
     },
@@ -16,49 +16,33 @@ const Testimonials = () => {
       role: "Attendee",
     },
   ];
-
   return (
-    <section
-      className="py-5 bg-light border-top"
-      aria-labelledby="testimonials-heading"
-    >
+    <section className="py-5 position-relative">
       <div className="container">
-        <h2 id="testimonials-heading" className="text-center mb-5 fw-bold">
-          What Our Users Say
-        </h2>
-        <div className="row text-center g-4">
-          {testimonials.map(({ text, author, role }, index) => (
-            <blockquote
-              key={index}
-              className="col-md-4 testimonial-card p-4 shadow rounded bg-light position-relative"
-              style={{ minHeight: "180px" }}
-            >
-              <p className="fst-italic mb-4" style={{ fontSize: "1.1rem" }}>
-                &ldquo;{text}&rdquo;
-              </p>
-              <footer className="blockquote-footer text-muted">
-                {author}, <cite title="User Role">{role}</cite>
-              </footer>
-              {/* Decorative quote icon */}
-              <span
-                className="position-absolute"
-                style={{
-                  top: "1rem",
-                  right: "1rem",
-                  fontSize: "2.5rem",
-                  color: "#0d6efd",
-                  opacity: 0.15,
-                }}
-                aria-hidden="true"
-              >
-                &ldquo;
-              </span>
-            </blockquote>
+        <div className="text-center mb-5">
+          <span className="eyebrow">Social proof</span>
+          <h2 className="fw-bold mt-1">What our users say</h2>
+        </div>
+
+        <div className="row g-4">
+          {items.map((t, i) => (
+            <div className="col-md-4" key={i}>
+              <figure className="glass rounded-4 p-4 h-100 soft-shadow hover-outline">
+                <div className="display-5 text-primary mb-2" aria-hidden="true">
+                  “
+                </div>
+                <blockquote className="blockquote mb-3">
+                  <p className="mb-0">{t.text}</p>
+                </blockquote>
+                <figcaption className="blockquote-footer mb-0">
+                  {t.author} <span className="text-muted">— {t.role}</span>
+                </figcaption>
+              </figure>
+            </div>
           ))}
         </div>
       </div>
     </section>
   );
 };
-
 export default Testimonials;
